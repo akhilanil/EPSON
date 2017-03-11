@@ -17,14 +17,13 @@ import java.util.concurrent.ExecutionException;
 
 public class RemoteCode {
 
-    HashMap<String,Long> mapCode;
+
     AssetManager assetManager;
     JSONObject epson;
 
     RemoteCode(AssetManager assetManager){
 
         Log.d("Constructor","REMOTECODE");
-        mapCode = new HashMap();
         this.assetManager = assetManager;
         initialiseCode();
 
@@ -80,6 +79,8 @@ public class RemoteCode {
             return null;
         }
 
+        if(json.equals(""))
+            Log.d("JSON","EMPTY");
         return json;
 
     }

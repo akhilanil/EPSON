@@ -9,14 +9,58 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.akhil.epson.MainActivity">
+    tools:context="com.example.akhil.epson.MainActivity"
+    tools:background="@android:color/holo_blue_bright">
 
-    <FrameLayout
+    <TextView
+        android:text="IP ADDRESS  :"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="92dp">
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="223dp"
+        android:id="@+id/iptext" />
 
-    </FrameLayout>
+    <TextView
+        android:text="PORT  :"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/iptext"
+        android:id="@+id/textView10" />
+
+    <EditText
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/port"
+        android:layout_width="30dp"
+        android:hint="80"
+        android:layout_alignBaseline="@+id/textView10"
+        android:layout_alignBottom="@+id/textView10"
+        android:layout_alignStart="@+id/ip" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/ip"
+        android:layout_marginStart="13dp"
+        android:hint="192.168.10.1"
+        android:layout_alignBaseline="@+id/iptext"
+        android:layout_alignBottom="@+id/iptext"
+        android:layout_toEndOf="@+id/iptext" />
+
+    <Button
+        android:text="CONNECT"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/port"
+        android:layout_toEndOf="@+id/textView10"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="11dp"
+        android:id="@+id/connect" />
+
 </RelativeLayout>
