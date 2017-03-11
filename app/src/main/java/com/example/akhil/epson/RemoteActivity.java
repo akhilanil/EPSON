@@ -1,5 +1,6 @@
 package com.example.akhil.epson;
 
+import android.media.Image;
 import android.provider.Settings;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -12,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +60,8 @@ public class RemoteActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
+        Log.d("START","BEGIN");
+
 
     }
 
@@ -86,7 +91,7 @@ public class RemoteActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class PlaceholderFragment extends Fragment{
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -111,10 +116,16 @@ public class RemoteActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = null;
+             View rootView = null;
 
-            if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("1"))
-                rootView =  inflater.inflate(R.layout.fragment_hand, container, false);
+            if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("1")) {
+                rootView = inflater.inflate(R.layout.fragment_hand, container, false);
+
+                initView(rootView);
+
+
+
+            }
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("2"))
                 rootView = inflater.inflate(R.layout.fragment_voice, container, false);
             else
@@ -125,8 +136,35 @@ public class RemoteActivity extends AppCompatActivity {
             //bt.setText();
             return rootView;
         }
+
+        public void initView(View rootView) {
+
+            final View view = rootView;
+
+            ImageButton power = (ImageButton) rootView.findViewById(R.id.powerButton);
+            power.setOnClickListener(new ButtonClick("power"));
+
+
+
+        }
+
     }
 
+
+    public static class ButtonClick implements View.OnClickListener {
+
+        String buttonName;
+        public ButtonClick(String buttonName) {
+            this.buttonName = buttonName;
+        }
+
+        public void onClick(View v) {
+
+            Log.d("OnCLICK", buttonName);
+            Toast.makeText(v.getContext(), buttonName, Toast.LENGTH_SHORT).show();
+        }
+
+    }
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.

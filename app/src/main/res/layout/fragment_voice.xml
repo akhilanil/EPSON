@@ -2,13 +2,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.akhil.epson.VoiceFragment">
+    tools:context="com.example.akhil.epson.RemoteActivity">
 
     <!-- TODO: Update blank fragment layout -->
 
     <Button
         android:text="Voice"
-        android:layout_width="269dp"
+        android:layout_width="match_parent"
         android:layout_height="155dp"
-        android:id="@+id/button3" />
+        android:id="@+id/voice" />
+
 </FrameLayout>
