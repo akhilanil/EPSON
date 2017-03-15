@@ -100,7 +100,7 @@ public class LoadingActivity extends AppCompatActivity {
     public final static String PREF_IP = "PREF_IP_ADDRESS";
     public final static String PREF_PORT = "PREF_PORT_NUMBER";
 
-    SharedPreferences.Editor editor;
+
     SharedPreferences sharedPreferences;
 
     @Override
@@ -123,7 +123,7 @@ public class LoadingActivity extends AppCompatActivity {
         });
 
         sharedPreferences = getSharedPreferences("HTTP_HELPER_PREFS",Context.MODE_PRIVATE);
-        editor = sharedPreferences.edit();
+
 
         Log.d("IP",sharedPreferences.getString(PREF_IP,"NULL"));
         Log.d("PORT",sharedPreferences.getString(PREF_PORT,"NULL"));
@@ -136,114 +136,15 @@ public class LoadingActivity extends AppCompatActivity {
         String requestType = "init";
 
         new HttpRequestAsyncTask(
-                findViewById(R.id.content).getContext(), parameterValue, ipAddress, portNumber,
+                findViewById(android.R.id.content).getContext(), parameterValue, ipAddress, portNumber,
                 requestType).execute();
 
 
 
+
     }
 
-
-    private class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
-        private String requestReply,ipAddress, portNumber;
-        private Context context;
-
-        private AlertDialog alertDialog;
-        private String requestType;
-        private ArrayList<String>  parameterValue;
-
-
-        public HttpRequestAsyncTask(Context context, ArrayList<String> parameterValue, String ipAddress,
-                                    String portNumber, String requestType) {
-
-            this.context = context;
-            this.ipAddress = ipAddress;
-            this.parameterValue = parameterValue;
-            this.portNumber = portNumber;
-            this.requestType = requestType;
-
-            alertDialog = new AlertDialog.Builder(this.context)
-                    .setTitle("HTTP Response From IP Address:")
-                    .create();
-
-
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            InputStream inputStream = null;
-
-            /*alertDialog.setMessage("Data sent, waiting for reply from device...");
-            alertDialog.setCancelable(false);
-            if(!alertDialog.isShowing()) {
-                alertDialog.show();
-            }*/
-            this.requestReply = sendRequest(parameterValue, ipAddress, context,
-                    portNumber, inputStream, requestType);
-            return null;
-        }
-        @Override
-        protected void  onPostExecute(Void avoid) {
-
-            Toast.makeText(this.context, this.requestReply, Toast.LENGTH_SHORT).show();
-
-        }
-    }
-
-    public String sendRequest(ArrayList<String> parameterValue, String ipAddress, Context context,
-                              String portNumber,InputStream inputStream,
-                              String requestType) {
-
-
-            /*
-            The request will be of the form :
-            http://192.168.X.X:80/?mode=xxxxx&unit=xx&code=xxxx
-            */
-        /*
-        * Request Type defines the type of request That is send
-        * Request Type Can Be Of The Following Forms :
-          * init : Initial Message Which Checks The Connection
-          * rc4key: Initialises The RSA KEY
-          * normal: Normal Messages
-        * */
-
-        String serverResponse = "ERROR";
-
-        String link = "";
-
-
-        if(requestType.equals("init"))
-            link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0);
-        else if(requestType.equals("rc4key"))
-            link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0)
-                    +"&unit="+parameterValue.get(1);
-        else
-            link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0)
-                    +"&unit="+parameterValue.get(1)+"&code="+parameterValue.get(2);
-
-        try {
-            URL url = new URL(link);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            HttpURLConnection.setFollowRedirects(false);
-            conn.setRequestMethod("GET");
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
-            inputStream = new BufferedInputStream(conn.getInputStream());
-            serverResponse = org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8");
-            inputStream.close();
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        return serverResponse;
-    }
-
-
-    @Override
+  @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
