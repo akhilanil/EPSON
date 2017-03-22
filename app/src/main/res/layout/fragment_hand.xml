@@ -32,23 +32,27 @@
                     <ImageButton
                         android:layout_height="match_parent"
                         app:srcCompat="@mipmap/power"
-                        android:id="@+id/powerButton"
+                        android:id="@+id/power"
                         android:layout_width="0dp"
-                        android:layout_weight="0.2" />
+                        android:layout_weight="0.2"
+                        android:tag="@string/powerButton" />
 
                     <Button
                         android:text="Source Search"
                         android:layout_width="0dp"
                         android:layout_weight="0.4"
                         android:layout_height="wrap_content"
-                        android:id="@+id/source" />
+                        android:id="@+id/source"
+                        android:tag="@string/source"/>
+
 
                     <Button
                         android:text="A/V Mute"
                         android:layout_width="0dp"
                         android:layout_weight="0.4"
                         android:layout_height="match_parent"
-                        android:id="@+id/Mute" />
+                        android:id="@+id/mute"
+                        android:tag="@string/mute"/>
                 </TableRow>
 
                 <TableRow
@@ -61,6 +65,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:id="@+id/computer"
+                        android:tag="@string/computer"
                         android:layout_weight="0.2"/>
 
                     <Button
@@ -68,6 +73,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:id="@+id/video"
+                        android:tag="@string/video"
                         android:layout_weight="0.2"/>
 
                     <Button
@@ -75,6 +81,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:id="@+id/usb"
+                        android:tag="@string/usb"
                         android:layout_weight="0.2"/>
 
                     <Button
@@ -82,6 +89,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:id="@+id/lan"
+                        android:tag="@string/lan"
                         android:layout_weight="0.2"/>
                 </TableRow>
 
@@ -97,7 +105,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="0.2"
                         android:layout_height="wrap_content"
-
+                        android:tag="@string/menu"
                         android:id="@+id/menu" />
 
                     <ImageButton
@@ -105,6 +113,7 @@
                         android:layout_weight="0.6"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/up"
+                        android:tag="@string/up"
                         android:id="@+id/up"/>
 
                     <Button
@@ -113,6 +122,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="0.2"
                         android:layout_height="wrap_content"
+                        android:tag="@string/esc"
                         android:id="@+id/esc" />
 
                 </TableRow>
@@ -127,6 +137,7 @@
                         android:layout_weight="0.2"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/left"
+                        android:tag="@string/left"
                         android:id="@+id/left" />
 
                     <ImageButton
@@ -134,6 +145,7 @@
                         android:layout_weight="0.6"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/enter"
+                        android:tag="@string/enter"
                         android:id="@+id/enter" />
 
                     <ImageButton
@@ -141,6 +153,7 @@
                         android:layout_weight="0.2"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/right"
+                        android:tag="@string/right"
                         android:id="@+id/right" />
 
                 </TableRow>
@@ -157,6 +170,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="0.2"
                         android:layout_height="wrap_content"
+                        android:tag="@string/user"
                         android:id="@+id/user" />
 
                     <ImageButton
@@ -164,6 +178,7 @@
                         android:layout_weight="0.6"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/down"
+                        android:tag="@string/down"
                         android:id="@+id/down" />
 
                     <Button
@@ -171,6 +186,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="0.2"
                         android:layout_height="wrap_content"
+                        android:tag="@string/pointer"
                         android:id="@+id/pointer" />
                 </TableRow>
 
@@ -186,7 +202,8 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/pagetext"
                         android:textStyle="bold|italic"
-                        android:gravity="center"/>
+                        android:gravity="center"
+                        android:tag="@string/textView"/>
 
                     <TextView
                         android:text="ZOOM"
@@ -195,7 +212,8 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/zoomtext"
                         android:textStyle="bold|italic"
-                        android:gravity="center"/>
+                        android:gravity="center"
+                        android:tag="@string/textView"/>
 
                     <TextView
                         android:text="VOLUME"
@@ -204,7 +222,8 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/voltext"
                         android:textStyle="bold|italic"
-                        android:gravity="center"/>
+                        android:gravity="center"
+                        android:tag="@string/textView"/>
 
 
                 </TableRow>
@@ -219,6 +238,7 @@
                         android:layout_weight="0.2"
                         android:layout_height="match_parent"
                         app:srcCompat="@mipmap/up"
+                        android:tag="@string/pageinc"
                         android:id="@+id/pageinc" />
 
                     <ImageButton
@@ -226,6 +246,7 @@
                         android:layout_weight="0.2"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/plus"
+                        android:tag="@string/zoominc"
                         android:id="@+id/zoominc" />
 
                     <ImageButton
@@ -233,6 +254,7 @@
                         android:layout_weight="0.2"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/plus"
+                        android:tag="@string/volinc"
                         android:id="@+id/volinc" />
 
                     <Button
@@ -240,6 +262,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="0.2"
                         android:layout_height="match_parent"
+                        android:tag="@string/help"
                         android:id="@+id/help" />
 
 
@@ -256,6 +279,7 @@
                         android:layout_weight="0.2"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/down"
+                        android:tag="@string/pagedec"
                         android:id="@+id/pagedec" />
 
                     <ImageButton
@@ -263,6 +287,7 @@
                         android:layout_weight="0.2"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/minus"
+                        android:tag="@string/zoomdec"
                         android:id="@+id/zoomdec" />
 
                     <ImageButton
@@ -270,6 +295,7 @@
                         android:layout_weight="0.2"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/minus"
+                        android:tag="@string/voldec"
                         android:id="@+id/voldec" />
 
                     <Button
@@ -277,6 +303,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="0.2"
                         android:layout_height="match_parent"
+                        android:tag="@string/freeze"
                         android:id="@+id/freeze" />
 
                 </TableRow>
@@ -292,30 +319,35 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
+                        android:tag="@string/num0"
                         android:id="@+id/num0" />
                     <Button
                         android:text="1"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
+                        android:tag="@string/num1"
                         android:id="@+id/num1" />
                     <Button
                         android:text="2"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
+                        android:tag="@string/num2"
                         android:id="@+id/num2" />
                     <Button
                         android:text="3"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
+                        android:tag="@string/num3"
                         android:id="@+id/num3" />
                     <Button
                         android:text="4"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
+                        android:tag="@string/num4"
                         android:id="@+id/num4" />
 
                 </TableRow>
@@ -330,30 +362,35 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
+                        android:tag="@string/num5"
                         android:id="@+id/num5" />
                     <Button
                         android:text="6"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
+                        android:tag="@string/num6"
                         android:id="@+id/num6" />
                     <Button
                         android:text="7"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
+                        android:tag="@string/num7"
                         android:id="@+id/num7" />
                     <Button
                         android:text="8"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
+                        android:tag="@string/num8"
                         android:id="@+id/num8" />
                     <Button
                         android:text="9"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="0.2"
+                        android:tag="@string/num9"
                         android:id="@+id/num9" />
 
                 </TableRow>
@@ -369,6 +406,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
+                        android:tag="@string/num"
                         android:id="@+id/num" />
                 </TableRow>
 

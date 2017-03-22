@@ -43,7 +43,7 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
         this.portNumber = portNumber;
         this.requestType = requestType;
 
-
+        this.requestReply = "ERROR";
 
 
 
@@ -60,6 +60,8 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
         this.requestType = requestType;
         this.fragmentTransaction =fragmentTransaction;
         this.currentFragment = currentFragment;
+
+        this.requestReply = "ERROR";
 
 
 
@@ -104,18 +106,43 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
         }
         else if(this.requestType.equals("initagain")) {
 
-            if (this.requestReply.equals("ERROR CANNOT FIND HOST")) {
+            if (this.requestReply.equals("ERROR CANNOT FIND HOST")) {//reply from ESP
                 //RemoteActivity.status = "failure";
-                RemoteActivity.status = "success";
+
+
+
             }
             else {
-                RemoteActivity.status = "success";
+
             }
 
-            fragmentTransaction.detach(currentFragment);
+            //TODO: Move this code to the else part.
+            RemoteActivity.status = "success";
+            RemoteActivity.signal = 1;
+            /*fragmentTransaction.detach(currentFragment);
             fragmentTransaction.attach(currentFragment);
-            fragmentTransaction.commit();
+            fragmentTransaction.commit();*/
             Log.d("NEW",RemoteActivity.status);
+
+        }
+
+        else if(this.requestType.equals("rc4key")) {
+
+            if (this.requestReply.equals("AUTH_FAIL")) { //reply from ESP
+
+                //RemoteActivity.status = "AUTH_FAIL";
+
+
+            }
+            else {
+
+            }
+
+            //TODO: Move this code to the else part.
+            RemoteActivity.status = "AUTH_SUCCESS";
+
+            Log.d("NEW",RemoteActivity.status);
+
         }
 
 

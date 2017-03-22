@@ -17,4 +17,50 @@
     <string name="title_activity_loading">LoadingActivity</string>
 
     <string name="title_activity_test">TestActivity</string>
+
+
+    <!--Tags for buttons in Remote-->
+
+    <string name = "powerButton">power</string>
+    <string name = "source">source</string>
+    <string name = "mute">mute</string>
+    <string name = "computer">computer</string>
+    <string name = "video">video</string>
+    <string name = "usb">usb</string>
+    <string name = "lan">lan</string>
+    <string name = "menu">menu</string>
+    <string name = "up">up</string>
+    <string name = "esc">esc</string>
+    <string name = "left">left</string>
+    <string name = "enter">enter</string>
+    <string name = "right">right</string>
+    <string name = "user">user</string>
+    <string name = "down">down</string>
+    <string name = "pointer">pointer</string>
+    <string name = "pageinc">pageup</string>
+    <string name = "zoominc">zoomin</string>
+    <string name = "volinc">volup</string>
+    <string name = "help">help</string>
+    <string name = "pagedec">pagedown</string>
+    <string name = "zoomdec">zoomout</string>
+    <string name = "voldec">voldown</string>
+    <string name = "freeze">freeze</string>
+    <string name = "num0">0</string>
+    <string name = "num1">1</string>
+    <string name = "num2">2</string>
+    <string name = "num3">3</string>
+    <string name = "num4">4</string>
+    <string name = "num5">5</string>
+    <string name = "num6">6</string>
+    <string name = "num7">7</string>
+    <string name = "num8">8</string>
+    <string name = "num9">9</string>
+    <string name = "num">num</string>
+
+
+
+    <string name = "textView">text</string>
+
+
+
 </resources>

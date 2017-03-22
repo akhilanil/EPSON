@@ -1,14 +1,16 @@
 package com.example.akhil.epson;
 
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.media.Image;
-import android.provider.Settings;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.support.annotation.StringRes;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -17,25 +19,37 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.akhil.decode.EncryptionKeys;
+import com.example.akhil.decode.RSAEncrypt;
+
 import java.util.ArrayList;
+import java.util.logging.LogRecord;
 
 public class RemoteActivity extends AppCompatActivity {
 
     static SharedPreferences sharedPreferences;
     public final static String PREF_IP = "PREF_IP_ADDRESS";
     public final static String PREF_PORT = "PREF_PORT_NUMBER";
+
+    public static EncryptionKeys encryptionKeys;
+
+
+
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -51,6 +65,7 @@ public class RemoteActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
     public static String status;
+    public static int signal = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,9 +89,8 @@ public class RemoteActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if(extras != null)
-            this.status = extras.getString("status");
+            status = extras.getString("status");
 
-        Log.d("START",this.status);
 
 
     }
@@ -132,12 +146,11 @@ public class RemoteActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-             View rootView = null;
+             View rootView;
 
             if(RemoteActivity.status.equals("faliure")) {
                 rootView = inflater.inflate(R.layout.fragment_connection_error, container, false);
                 final Fragment currentFragment = this;
-                //initView(rootView);
                 Button tryagain = (Button)rootView.findViewById(R.id.tryagain);
                 tryagain.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -159,11 +172,19 @@ public class RemoteActivity extends AppCompatActivity {
                         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-                        new HttpRequestAsyncTask(
+                        RequestHandler requestHandler = new RequestHandler(v.getContext(), parameterValue,
+                                ipAddress, portNumber,
+                                requestType, fragmentTransaction, currentFragment);
+
+                        new InitRC4Encryption(requestHandler);
+                        new InitRequest(requestHandler);
+
+                        /*new HttpRequestAsyncTask (
                                 v.getContext(), parameterValue, ipAddress, portNumber,
                                 requestType, fragmentTransaction, currentFragment).execute();
+                        */
 
-
+                        //while (task.getStatus() != HttpRequestAsyncTask.Status.FINISHED);
 
 
                     }
@@ -197,28 +218,257 @@ public class RemoteActivity extends AppCompatActivity {
 
             final View view = rootView;
 
-            ImageButton power = (ImageButton) rootView.findViewById(R.id.powerButton);
-            power.setOnClickListener(new ButtonClick("power"));
+            ((ImageButton) rootView.findViewById(R.id.power)).setOnClickListener(new ButtonClick());
+            ((ImageButton) rootView.findViewById(R.id.up)).setOnClickListener(new ButtonClick());
+            ((ImageButton) rootView.findViewById(R.id.left)).setOnClickListener(new ButtonClick());
+            ((ImageButton) rootView.findViewById(R.id.right)).setOnClickListener(new ButtonClick());
+            ((ImageButton) rootView.findViewById(R.id.down)).setOnClickListener(new ButtonClick());
+            ((ImageButton) rootView.findViewById(R.id.enter)).setOnClickListener(new ButtonClick());
+            ((ImageButton) rootView.findViewById(R.id.pageinc)).setOnClickListener(new ButtonClick());
+            ((ImageButton) rootView.findViewById(R.id.pagedec)).setOnClickListener(new ButtonClick());
+            ((ImageButton) rootView.findViewById(R.id.zoominc)).setOnClickListener(new ButtonClick());
+            ((ImageButton) rootView.findViewById(R.id.zoomdec)).setOnClickListener(new ButtonClick());
+            ((ImageButton) rootView.findViewById(R.id.volinc)).setOnClickListener(new ButtonClick());
+            ((ImageButton) rootView.findViewById(R.id.voldec)).setOnClickListener(new ButtonClick());
 
+
+
+
+
+            ((Button) rootView.findViewById(R.id.source)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.mute)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.computer)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.video)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.usb)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.lan)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.menu)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.esc)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.user)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.pointer)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.help)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.freeze)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.num0)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.num1)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.num2)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.num3)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.num4)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.num5)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.num6)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.num7)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.num8)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.num9)).setOnClickListener(new ButtonClick());
+            ((Button) rootView.findViewById(R.id.num)).setOnClickListener(new ButtonClick());
+
+
+
+            //rootView.setOnClickListener(new ButtonClick());
+            //rootView.getRootView().setOnClickListener(new ButtonClick());
 
 
         }
 
+
+
+        private class InitRequest implements Runnable {
+
+            Thread t;
+            RequestHandler requestHandler;
+            public InitRequest(RequestHandler requestHandler){
+                t = new Thread(this,"Init Request");
+                this.requestHandler = requestHandler;
+                t.start();
+
+            }
+
+            @Override
+            public void run() {
+
+                try {
+                    requestHandler.sendInitRequest();
+                }catch(InterruptedException e) {
+                    Log.d("ERROR",e.getMessage());
+                }
+            }
+        }
+
+        private class InitRC4Encryption implements Runnable {
+
+            Thread t;
+            RequestHandler requestHandler;
+            public InitRC4Encryption(RequestHandler requestHandler) {
+
+                t = new Thread(this,"Init Request");
+                this.requestHandler = requestHandler;
+                t.start();
+
+            }
+            @Override
+            public void run() {
+                try {
+                    requestHandler.sendInitEncryption();
+                }catch(InterruptedException e) {
+                    Log.d("ERROR",e.getMessage());
+                }
+
+            }
+        }
+
+        public class RequestHandler {
+
+
+            private String requestReply,ipAddress, portNumber;
+            private Context context;
+
+
+            private String requestType;
+            private ArrayList<String> parameterValue;
+            private FragmentTransaction fragmentTransaction;
+            private Fragment currentFragment;
+            public int status ;
+
+            public RequestHandler(Context context, ArrayList<String> parameterValue, String ipAddress,
+                                  String portNumber, String requestType,
+                                  FragmentTransaction fragmentTransaction, Fragment currentFragment) {
+
+                this.context = context;
+                this.ipAddress = ipAddress;
+                this.parameterValue = parameterValue;
+                this.portNumber = portNumber;
+                this.requestType = requestType;
+                this.fragmentTransaction =fragmentTransaction;
+                this.currentFragment = currentFragment;
+                this.status = 0;
+
+            }
+
+            public synchronized void sendInitRequest () throws InterruptedException {
+
+
+                new HttpRequestAsyncTask (
+                        this.context, parameterValue, ipAddress, portNumber,
+                        requestType, fragmentTransaction, currentFragment).execute();
+                status = 1;
+
+                if(RemoteActivity.signal == 0) {
+                    wait(7000);
+                }
+                notify();
+
+
+
+            }
+
+            public synchronized void  sendInitEncryption() throws  InterruptedException {
+
+                while(RemoteActivity.signal == 0) {
+                    wait();
+                }
+
+                if(RemoteActivity.status.equals("success")) {
+
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+                    final EditText input = new EditText(context);
+                    input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    builder.setView(input);
+                    builder.setCancelable(false);
+                    builder.setTitle("LOGIN");
+                    builder.setMessage("Enter Password...");
+
+                    builder.setPositiveButton("LOGIN", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        final String password = input.getText().toString().trim();
+
+
+                            dialog.cancel();
+
+                            final ProgressDialog progressCircle = new ProgressDialog(context);
+                            progressCircle.setCancelable(false);
+                            progressCircle.setMessage("Please Wait...");
+                            progressCircle.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                            progressCircle.show();
+
+                            encryptionKeys = new EncryptionKeys();
+
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    String encryptedPassword;
+                                    RSAEncrypt rsaEncrypt = new RSAEncrypt(encryptionKeys);
+                                    encryptedPassword = rsaEncrypt.encryptPassword(password);
+
+                                    parameterValue.add(0,encryptedPassword);
+                                    requestType = "rc4key";
+                                    new HttpRequestAsyncTask(context, parameterValue, ipAddress, portNumber,
+                                            requestType,fragmentTransaction,currentFragment).execute();
+
+                                    try {Thread.sleep(7000);}catch (Exception e) {Log.d("ERROR1",e.getMessage());e.printStackTrace();}
+                                    progressCircle.dismiss();
+                                    if(RemoteActivity.status.equals("AUTH_SUCCESS")) {
+
+                                        fragmentTransaction.detach(currentFragment);
+                                        fragmentTransaction.attach(currentFragment);
+                                        fragmentTransaction.commit();
+
+                                    }
+
+
+
+
+                                    if(RemoteActivity.status.equals("AUTH_SUCCESS")) {
+                                        Log.d("Status", "Authenticated");
+                                    }
+
+                            }
+                            }).start();
+
+                        }
+
+                    });
+
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+
+
+                    final Handler handler = new Handler(Looper.getMainLooper());
+
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            builder.show();
+                        }
+                    });
+                }
+            }
+        }
     }
 
 
     public static class ButtonClick implements View.OnClickListener {
 
-        String buttonName;
-        public ButtonClick(String buttonName) {
+        //String buttonName;
+        /*public ButtonClick(String buttonName) {
             this.buttonName = buttonName;
-        }
+        }*/
 
         public void onClick(View v) {
 
-            Log.d("OnCLICK", buttonName);
-            Toast.makeText(v.getContext(), buttonName, Toast.LENGTH_SHORT).show();
+            Log.d("OnCLICK", "CLICKING");
+            if(String.valueOf(v.getTag()).equals("text"))
+                Log.d("OnCLICK", String.valueOf(v.getTag()));
+            else {
+                Log.d("OnCLICK", "CLICKED");
+                Toast.makeText(v.getContext(), String.valueOf(v.getTag()), Toast.LENGTH_SHORT).show();
+            }
         }
+
 
     }
     /**

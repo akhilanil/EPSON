@@ -9,19 +9,20 @@ import android.util.Log;
 
 public class EncryptionKeys {
 
-    private static String RSAkey = "";
+    private static int RSApublickey;
+    private static int RSAprivatekey;
     private static String RC4key = "";
 
-    EncryptionKeys() {
+    public EncryptionKeys() {
 
+        this.RSApublickey = 3337;
+        this.RSAprivatekey = 79;
         Log.d("Constructor","ENCRYPTIONKEYS");
-
-
     }
 
-    public String getRSAkey() {
-       return RSAkey;
-    }
+    public int getRSApublickeykey() { return RSApublickey; }
+
+    public int getRSAprivatekey() { return RSAprivatekey; }
 
     public String getRC4key() {
         return RC4key;
@@ -31,7 +32,5 @@ public class EncryptionKeys {
         this.RC4key = RC4key;
     }
 
-    public void setRSAkey(String RSAkey) {
-        this.RSAkey  = RSAkey;
-    }
+
 }
