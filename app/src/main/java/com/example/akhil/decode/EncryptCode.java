@@ -22,12 +22,15 @@ public class EncryptCode {
 
     public String getCode(String buttonPressed) {
         String encryptedCode = "";
-        long buttonCode;
+        String buttonCode = "";
+
         buttonCode = remoteCode.getRemoteCode(buttonPressed);
-        encryptedCode = rc4Encryption.encryptCode(String.valueOf(buttonCode));
+
+        Log.d("CODE",buttonCode);
+
+        encryptedCode = rc4Encryption.encryptCode(buttonCode);
+
+
         return  encryptedCode;
-
     }
-
-
 }

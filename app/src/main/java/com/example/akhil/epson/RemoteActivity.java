@@ -6,8 +6,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
-import android.support.annotation.StringRes;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -26,18 +24,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
+
 
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.akhil.decode.EncryptCode;
 import com.example.akhil.decode.EncryptionKeys;
+import com.example.akhil.decode.InitRC4;
 import com.example.akhil.decode.RSAEncrypt;
+import com.example.akhil.decode.RemoteCode;
 
 import java.util.ArrayList;
-import java.util.logging.LogRecord;
+import java.util.concurrent.ThreadLocalRandom;
+
 
 public class RemoteActivity extends AppCompatActivity {
 
@@ -46,8 +48,11 @@ public class RemoteActivity extends AppCompatActivity {
     public final static String PREF_PORT = "PREF_PORT_NUMBER";
 
     public static EncryptionKeys encryptionKeys;
+    public static InitRC4 initRC4;
+    public  static RemoteCode remoteCode;
+    public static EncryptCode encryptCode;
 
-
+    public static String finalipAddress,finalportNumber;
 
 
     /**
@@ -63,7 +68,8 @@ public class RemoteActivity extends AppCompatActivity {
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
+    private static ViewPager mViewPager;
+    private static boolean change;
     public static String status;
     public static int signal = 0;
     @Override
@@ -81,6 +87,28 @@ public class RemoteActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+                if(RemoteActivity.change) {
+                    RemoteActivity.change = !RemoteActivity.change;
+                    mViewPager.getAdapter().notifyDataSetChanged();
+                }
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
@@ -95,6 +123,10 @@ public class RemoteActivity extends AppCompatActivity {
 
     }
 
+    public static void  screenUpdate() {
+
+        mViewPager.getAdapter().notifyDataSetChanged();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -146,7 +178,7 @@ public class RemoteActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-             View rootView;
+             View rootView = null;
 
             if(RemoteActivity.status.equals("faliure")) {
                 rootView = inflater.inflate(R.layout.fragment_connection_error, container, false);
@@ -203,14 +235,18 @@ public class RemoteActivity extends AppCompatActivity {
 
 
             }
-            else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("2"))
+            else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("2")) {
                 rootView = inflater.inflate(R.layout.fragment_voice, container, false);
-            else
+
+
+            }
+            else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("3"))
                 rootView = inflater.inflate(R.layout.fragment_help, container, false);
             //System.out.println(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
 
             //Button bt = (Button)rootView.findViewById(R.id.button);
             //bt.setText();
+            Log.d("VOICE",String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
         }
 
@@ -258,12 +294,6 @@ public class RemoteActivity extends AppCompatActivity {
             ((Button) rootView.findViewById(R.id.num8)).setOnClickListener(new ButtonClick());
             ((Button) rootView.findViewById(R.id.num9)).setOnClickListener(new ButtonClick());
             ((Button) rootView.findViewById(R.id.num)).setOnClickListener(new ButtonClick());
-
-
-
-            //rootView.setOnClickListener(new ButtonClick());
-            //rootView.getRootView().setOnClickListener(new ButtonClick());
-
 
         }
 
@@ -341,6 +371,8 @@ public class RemoteActivity extends AppCompatActivity {
 
             }
 
+
+
             public synchronized void sendInitRequest () throws InterruptedException {
 
 
@@ -352,6 +384,7 @@ public class RemoteActivity extends AppCompatActivity {
                 if(RemoteActivity.signal == 0) {
                     wait(7000);
                 }
+
                 notify();
 
 
@@ -365,6 +398,8 @@ public class RemoteActivity extends AppCompatActivity {
                 }
 
                 if(RemoteActivity.status.equals("success")) {
+                    finalipAddress = this.ipAddress;
+                    finalportNumber = this.portNumber;
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -372,8 +407,8 @@ public class RemoteActivity extends AppCompatActivity {
                     input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                     builder.setView(input);
                     builder.setCancelable(false);
-                    builder.setTitle("LOGIN");
-                    builder.setMessage("Enter Password...");
+                    builder.setTitle("Enter Password...");
+                    //builder.setMessage("");
 
                     builder.setPositiveButton("LOGIN", new DialogInterface.OnClickListener() {
                         @Override
@@ -408,17 +443,20 @@ public class RemoteActivity extends AppCompatActivity {
                                     progressCircle.dismiss();
                                     if(RemoteActivity.status.equals("AUTH_SUCCESS")) {
 
+                                        encryptionKeys.setRC4key(password);
                                         fragmentTransaction.detach(currentFragment);
                                         fragmentTransaction.attach(currentFragment);
                                         fragmentTransaction.commit();
 
-                                    }
-
-
-
-
-                                    if(RemoteActivity.status.equals("AUTH_SUCCESS")) {
+                                        initRC4 = new InitRC4(encryptionKeys);
+                                        initRC4.initialiseRC4();
+                                        remoteCode = new RemoteCode(context.getAssets());
+                                        encryptCode = new EncryptCode(initRC4, remoteCode);
                                         Log.d("Status", "Authenticated");
+                                        RemoteActivity.change = true;
+                                        //mViewPager.getAdapter().notifyDataSetChanged();
+                                        // RemoteActivity.screenUpdate();
+
                                     }
 
                             }
@@ -460,13 +498,54 @@ public class RemoteActivity extends AppCompatActivity {
 
         public void onClick(View v) {
 
-            Log.d("OnCLICK", "CLICKING");
-            if(String.valueOf(v.getTag()).equals("text"))
-                Log.d("OnCLICK", String.valueOf(v.getTag()));
-            else {
-                Log.d("OnCLICK", "CLICKED");
-                Toast.makeText(v.getContext(), String.valueOf(v.getTag()), Toast.LENGTH_SHORT).show();
-            }
+            ArrayList<String> parameterValue = new ArrayList<String>();
+            String code = String.valueOf(v.getTag());
+            String requestType = "normal";
+            RemoteActivity.status = "newRequest";
+            RemoteActivity.signal = 0;
+
+            Log.d("RC4TEXT",code);
+
+            code = encryptCode.getCode(code);
+
+            Log.d("RC4CIPHER",code);
+
+
+            Toast.makeText(v.getContext(), code, Toast.LENGTH_SHORT).show();
+
+
+            parameterValue.add(0, code); // request mode
+            parameterValue.add(1,code);
+
+
+            new HttpRequestAsyncTask (
+                   v.getContext(), parameterValue, finalipAddress, finalportNumber,
+                    requestType).execute();
+
+            final ProgressDialog progressCircle = new ProgressDialog(v.getContext());
+            progressCircle.setCancelable(false);
+            progressCircle.setMessage("Please Wait...");
+            progressCircle.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressCircle.show();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    while(RemoteActivity.signal == 0){
+                        try{
+
+                          Thread.sleep(2000);
+
+                        }catch(Exception e){e.printStackTrace();}
+                    }
+                    progressCircle.dismiss();
+                }
+            }).start();
+
+
+
+
         }
 
 
@@ -493,6 +572,12 @@ public class RemoteActivity extends AppCompatActivity {
             // Show 3 total pages.
             return 3;
         }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
+
 
         @Override
         public CharSequence getPageTitle(int position) {

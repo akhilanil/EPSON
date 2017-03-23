@@ -20,29 +20,31 @@ public class RemoteCode {
 
     AssetManager assetManager;
     JSONObject epson;
+    String test = "a";
 
-    RemoteCode(AssetManager assetManager){
+    public RemoteCode(AssetManager assetManager){
 
         Log.d("Constructor","REMOTECODE");
         this.assetManager = assetManager;
+        test = "b";
         initialiseCode();
 
 
     }
 
-    long getRemoteCode (String buttonPressed) {
-        long buttonCode = 0;
+    public String getRemoteCode (String buttonPressed) {
+        String buttonCode = "";
 
         try {
-            String code = epson.getString(buttonPressed);
-            if(!code.equals("XX"))
-                buttonCode = Long.parseLong(code);
+
+            //if(test.equals("a"))
+
+
+            buttonCode = epson.getString(buttonPressed);
             Log.d("Code",String.valueOf(buttonCode));
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
         return buttonCode;
     }
 
@@ -50,9 +52,7 @@ public class RemoteCode {
 
         try {
             JSONObject jsonObject = new JSONObject(loadJSON());
-            epson = jsonObject.getJSONObject("EPSONPROJECTOR");
-
-
+            this.epson = jsonObject.getJSONObject("EPSONPROJECTOR");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -79,8 +79,8 @@ public class RemoteCode {
             return null;
         }
 
-        if(json.equals(""))
-            Log.d("JSON","EMPTY");
+        //if(json.equals(""))
+            Log.d("JSON",json);
         return json;
 
     }

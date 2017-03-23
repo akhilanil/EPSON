@@ -141,8 +141,24 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
             //TODO: Move this code to the else part.
             RemoteActivity.status = "AUTH_SUCCESS";
 
-            Log.d("NEW",RemoteActivity.status);
 
+
+
+        }
+        else if(this.requestType.equals("normal")) {
+            Log.d("type",this.requestType);
+            if(this.requestReply.equals("failure")) {
+                //RemoteActivity.status = "FAIL";
+
+            }
+            else {
+
+            }
+            //TODO: Move this code to the else part.
+            RemoteActivity.status = "SUCCESS";
+            RemoteActivity.signal = 1;
+            Log.d("STATUS",String.valueOf(RemoteActivity.signal));
+            //notify();
         }
 
 
@@ -164,7 +180,7 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
         /*
         * Request Type defines the type of request That is send
         * Request Type Can Be Of The Following Forms :
-          * init : Initial Message Which Checks The Connection
+          * init/initagain : Initial Message Which Checks The Connection
           * rc4key: Initialises The RSA KEY
           * normal: Normal Messages
         * */
@@ -179,9 +195,9 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
         else if(requestType.equals("rc4key"))
             link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0)
                     +"&unit="+parameterValue.get(1);
-        else
+        else if(requestType.equals("normal"))
             link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0)
-                    +"&unit="+parameterValue.get(1)+"&code="+parameterValue.get(2);
+                    +"&code="+parameterValue.get(1);
 
         try {
             URL url = new URL(link);

@@ -21,10 +21,10 @@
         <activity
             android:name=".RemoteActivity"
             android:label="@string/title_activity_remote"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".LoadingActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_loading"
             android:theme="@style/FullscreenTheme" />
     </application>

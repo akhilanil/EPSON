@@ -11,13 +11,14 @@ public class InitRC4 {
     String key = "";
     EncryptionKeys encryptionKeys;
     private static int[] s, prga;
-    private int array_length = 15;
+    private final int array_length = 15;
 
 
     public InitRC4(EncryptionKeys encryptionKeys) {
 
         this.encryptionKeys = encryptionKeys;
         this.key = encryptionKeys.getRC4key();
+       // Log.d("KEY",this.key);
         s = new int[array_length];
         prga = new int[array_length];
         for(int i = 0; i < array_length; i++)
@@ -29,11 +30,13 @@ public class InitRC4 {
     private void doKSA() {
 
         int i,j=0,temp;
-
+        int key_length = key.length();
         for(i = 0; i < array_length; i++) {
 
-            j = (j + s[i] + key.charAt(i%5)) % array_length;
+            j = (j + s[i] + key.charAt(i%key_length)) % array_length;
 
+            Log.d("Index",String.valueOf(i)+"  "+String.valueOf(j));
+            Log.d("Value1",String.valueOf(s[i])+"  "+String.valueOf(s[j]));
             temp = s[i];
             s[i] = s[j];
             s[j] = temp;
@@ -65,6 +68,16 @@ public class InitRC4 {
     public void initialiseRC4() {
         doKSA();
         doPRGA();
+
+        for(int i = 0; i<array_length; i++ ){
+
+            Log.d("SARRAY:" , String.valueOf(s[i]));
+
+        }
+
+        for(int i = 0; i<array_length; i++ ) {
+            Log.d("PRGA:", String.valueOf(prga[i]));
+        }
     }
 
     public int [] getPrga() {
