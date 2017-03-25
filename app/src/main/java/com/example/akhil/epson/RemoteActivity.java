@@ -73,6 +73,10 @@ public class RemoteActivity extends AppCompatActivity {
     public static ConnectionStatus connectionStatus;
     public static int signal = 0;
 
+    /*Variable used to check whether RC4 key is initialized */
+    private static boolean isRC4Initialized = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -230,12 +234,30 @@ public class RemoteActivity extends AppCompatActivity {
 
             }
 
-            
+
 
 
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("1")) {
                 rootView = inflater.inflate(R.layout.fragment_hand, container, false);
 
+                if(!isRC4Initialized) {
+                   // Log.d("Status","Initializing");
+                    ArrayList<String> parameterValue = new ArrayList<String>();
+                    String ipAddress = sharedPreferences.getString(PREF_IP, "NULL");
+                    String portNumber = sharedPreferences.getString(PREF_PORT, "NULL");
+                    RequestMode requestType = RequestMode.RC4KEY;
+
+                    final Fragment currentFragment = this;
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    RemoteActivity.signal = 1;
+                    RequestHandler requestHandler = new RequestHandler(rootView.getContext(), parameterValue,
+                            ipAddress, portNumber,
+                            requestType, fragmentTransaction, currentFragment);
+
+                    new InitRC4Encryption(requestHandler);
+
+                }
                 initView(rootView);
 
 
@@ -337,6 +359,7 @@ public class RemoteActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
+
                     requestHandler.sendInitEncryption();
                 }catch(InterruptedException e) {
                     Log.d("ERROR",e.getMessage());
@@ -398,8 +421,10 @@ public class RemoteActivity extends AppCompatActivity {
                 while(RemoteActivity.signal == 0) {
                     wait();
                 }
+                Log.d("Status","Initializing");
 
                 if(RemoteActivity.connectionStatus.equals(ConnectionStatus.SUCCESS)) {
+
                     finalipAddress = this.ipAddress;
                     finalportNumber = this.portNumber;
                     RemoteActivity.signal = 0;
@@ -465,6 +490,7 @@ public class RemoteActivity extends AppCompatActivity {
                                         encryptCode = new EncryptCode(initRC4, remoteCode);
 
                                         RemoteActivity.change = true;
+                                        isRC4Initialized = true;
 
                                     }
 
@@ -493,6 +519,7 @@ public class RemoteActivity extends AppCompatActivity {
                         }
                     });
                 }
+                RemoteActivity.signal = 0;
             }
         }
     }

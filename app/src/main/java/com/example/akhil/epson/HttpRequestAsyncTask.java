@@ -80,6 +80,7 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
                 context.startActivity(loading);*/
                 LoadingActivity.requestStatus = ConnectionStatus.SUCCESS;
             }
+            LoadingActivity.requestStatus = ConnectionStatus.SUCCESS;
             LoadingActivity.changeOnReply = true;
 
 
