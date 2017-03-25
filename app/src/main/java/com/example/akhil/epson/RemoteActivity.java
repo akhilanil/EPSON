@@ -38,7 +38,7 @@ import com.example.akhil.decode.RSAEncrypt;
 import com.example.akhil.decode.RemoteCode;
 
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
+
 
 
 public class RemoteActivity extends AppCompatActivity {
@@ -70,8 +70,9 @@ public class RemoteActivity extends AppCompatActivity {
      */
     private static ViewPager mViewPager;
     private static boolean change;
-    public static String status;
+    public static ConnectionStatus connectionStatus;
     public static int signal = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,7 +118,7 @@ public class RemoteActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if(extras != null)
-            status = extras.getString("status");
+            connectionStatus = (ConnectionStatus) extras.get("status");
 
 
 
@@ -132,6 +133,11 @@ public class RemoteActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_remote, menu);
+
+
+
+
+
         return true;
     }
 
@@ -144,6 +150,7 @@ public class RemoteActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
             return true;
         }
 
@@ -180,16 +187,18 @@ public class RemoteActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
              View rootView = null;
 
-            if(RemoteActivity.status.equals("faliure")) {
+            if(RemoteActivity.connectionStatus.equals(ConnectionStatus.FAIL)) {
+
                 rootView = inflater.inflate(R.layout.fragment_connection_error, container, false);
                 final Fragment currentFragment = this;
-                Button tryagain = (Button)rootView.findViewById(R.id.tryagain);
+                final Button tryagain = (Button)rootView.findViewById(R.id.tryagain);
+
                 tryagain.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        //tryagain.setEnabled(false);
                         ArrayList<String> parameterValue = new ArrayList<String>();
-                        parameterValue.add(0,"init");
+                        parameterValue.add(0,ParameterFactory.getMode(RequestMode.INIT));
 
                         String ipAddress = sharedPreferences.getString(PREF_IP,"NULL");
                         String portNumber = sharedPreferences.getString(PREF_PORT,"NULL");
@@ -199,7 +208,7 @@ public class RemoteActivity extends AppCompatActivity {
                         * Purpose: Connection Request from USER
                         * */
 
-                        String requestType = "initagain";
+                        RequestMode requestType = RequestMode.INIT_AGAIN;
 
                         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -210,13 +219,8 @@ public class RemoteActivity extends AppCompatActivity {
 
                         new InitRC4Encryption(requestHandler);
                         new InitRequest(requestHandler);
+                        Log.d("Status","CHECK");
 
-                        /*new HttpRequestAsyncTask (
-                                v.getContext(), parameterValue, ipAddress, portNumber,
-                                requestType, fragmentTransaction, currentFragment).execute();
-                        */
-
-                        //while (task.getStatus() != HttpRequestAsyncTask.Status.FINISHED);
 
 
                     }
@@ -225,6 +229,8 @@ public class RemoteActivity extends AppCompatActivity {
 
 
             }
+
+            
 
 
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("1")) {
@@ -242,11 +248,7 @@ public class RemoteActivity extends AppCompatActivity {
             }
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("3"))
                 rootView = inflater.inflate(R.layout.fragment_help, container, false);
-            //System.out.println(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
 
-            //Button bt = (Button)rootView.findViewById(R.id.button);
-            //bt.setText();
-            Log.d("VOICE",String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
         }
 
@@ -350,14 +352,13 @@ public class RemoteActivity extends AppCompatActivity {
             private Context context;
 
 
-            private String requestType;
+            private RequestMode requestType;
             private ArrayList<String> parameterValue;
             private FragmentTransaction fragmentTransaction;
             private Fragment currentFragment;
-            public int status ;
 
             public RequestHandler(Context context, ArrayList<String> parameterValue, String ipAddress,
-                                  String portNumber, String requestType,
+                                  String portNumber, RequestMode requestType,
                                   FragmentTransaction fragmentTransaction, Fragment currentFragment) {
 
                 this.context = context;
@@ -367,7 +368,6 @@ public class RemoteActivity extends AppCompatActivity {
                 this.requestType = requestType;
                 this.fragmentTransaction =fragmentTransaction;
                 this.currentFragment = currentFragment;
-                this.status = 0;
 
             }
 
@@ -378,11 +378,13 @@ public class RemoteActivity extends AppCompatActivity {
 
                 new HttpRequestAsyncTask (
                         this.context, parameterValue, ipAddress, portNumber,
-                        requestType, fragmentTransaction, currentFragment).execute();
-                status = 1;
+                        requestType).execute();
 
-                if(RemoteActivity.signal == 0) {
-                    wait(7000);
+
+                while(RemoteActivity.signal == 0){
+
+                    try{Thread.sleep(1000);}catch (Exception e){e.printStackTrace();}
+
                 }
 
                 notify();
@@ -397,10 +399,10 @@ public class RemoteActivity extends AppCompatActivity {
                     wait();
                 }
 
-                if(RemoteActivity.status.equals("success")) {
+                if(RemoteActivity.connectionStatus.equals(ConnectionStatus.SUCCESS)) {
                     finalipAddress = this.ipAddress;
                     finalportNumber = this.portNumber;
-
+                    RemoteActivity.signal = 0;
                     final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
                     final EditText input = new EditText(context);
@@ -434,14 +436,23 @@ public class RemoteActivity extends AppCompatActivity {
                                     RSAEncrypt rsaEncrypt = new RSAEncrypt(encryptionKeys);
                                     encryptedPassword = rsaEncrypt.encryptPassword(password);
 
-                                    parameterValue.add(0,encryptedPassword);
-                                    requestType = "rc4key";
-                                    new HttpRequestAsyncTask(context, parameterValue, ipAddress, portNumber,
-                                            requestType,fragmentTransaction,currentFragment).execute();
+                                    parameterValue.add(0,ParameterFactory.getMode(RequestMode.RC4KEY));
+                                    parameterValue.add(1,encryptedPassword);
+                                    requestType = RequestMode.RC4KEY;
 
-                                    try {Thread.sleep(7000);}catch (Exception e) {Log.d("ERROR1",e.getMessage());e.printStackTrace();}
+                                    new HttpRequestAsyncTask(context, parameterValue, ipAddress, portNumber,
+                                            requestType).execute();
+                                    while(RemoteActivity.signal == 0) {
+                                        try {
+                                            Thread.sleep(1000);
+                                        } catch (Exception e) {
+                                            Log.d("ERROR1", e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
                                     progressCircle.dismiss();
-                                    if(RemoteActivity.status.equals("AUTH_SUCCESS")) {
+
+                                    if(RemoteActivity.connectionStatus.equals(ConnectionStatus.AUTH_SUCCESS)) {
 
                                         encryptionKeys.setRC4key(password);
                                         fragmentTransaction.detach(currentFragment);
@@ -452,10 +463,8 @@ public class RemoteActivity extends AppCompatActivity {
                                         initRC4.initialiseRC4();
                                         remoteCode = new RemoteCode(context.getAssets());
                                         encryptCode = new EncryptCode(initRC4, remoteCode);
-                                        Log.d("Status", "Authenticated");
+
                                         RemoteActivity.change = true;
-                                        //mViewPager.getAdapter().notifyDataSetChanged();
-                                        // RemoteActivity.screenUpdate();
 
                                     }
 
@@ -499,9 +508,11 @@ public class RemoteActivity extends AppCompatActivity {
         public void onClick(View v) {
 
             ArrayList<String> parameterValue = new ArrayList<String>();
+
             String code = String.valueOf(v.getTag());
-            String requestType = "normal";
-            RemoteActivity.status = "newRequest";
+            RequestMode requestType = RequestMode.NORMAL;
+
+            RemoteActivity.connectionStatus = ConnectionStatus.REMOTEREQUEST;
             RemoteActivity.signal = 0;
 
             Log.d("RC4TEXT",code);
@@ -514,7 +525,7 @@ public class RemoteActivity extends AppCompatActivity {
             Toast.makeText(v.getContext(), code, Toast.LENGTH_SHORT).show();
 
 
-            parameterValue.add(0, code); // request mode
+            parameterValue.add(0, ParameterFactory.getMode(RequestMode.NORMAL)); // request mode
             parameterValue.add(1,code);
 
 

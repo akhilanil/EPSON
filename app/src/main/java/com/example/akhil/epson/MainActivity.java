@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
             Intent loading = new Intent(MainActivity.this, LoadingActivity.class);
             startActivity(loading);
+            finish();
 
         }
 
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
                     Intent loading = new Intent(MainActivity.this, LoadingActivity.class);
                     startActivity(loading);
+                    finish();
+
                 }
             }
         });

@@ -2,13 +2,9 @@ package com.example.akhil.epson;
 
 import android.support.v4.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -25,17 +21,17 @@ import java.util.ArrayList;
 class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
 
 
-    private String requestReply,ipAddress, portNumber;
+    private String ipAddress, portNumber;
     private Context context;
 
+    private ServerResponse requestReply;
 
-    private String requestType;
+
+    private RequestMode requestType;
     private ArrayList<String> parameterValue;
-    private FragmentTransaction fragmentTransaction;
-    private Fragment currentFragment;
 
     public HttpRequestAsyncTask(Context context, ArrayList<String> parameterValue, String ipAddress,
-                                String portNumber, String requestType) {
+                                String portNumber, RequestMode requestType) {
 
         this.context = context;
         this.ipAddress = ipAddress;
@@ -43,72 +39,56 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
         this.portNumber = portNumber;
         this.requestType = requestType;
 
-        this.requestReply = "ERROR";
+        this.requestReply = ServerResponse.UNREACHABLE_HOST;
 
 
 
     }
 
-    public HttpRequestAsyncTask(Context context, ArrayList<String> parameterValue, String ipAddress,
-                                String portNumber, String requestType,
-                                FragmentTransaction fragmentTransaction, Fragment currentFragment) {
-
-        this.context = context;
-        this.ipAddress = ipAddress;
-        this.parameterValue = parameterValue;
-        this.portNumber = portNumber;
-        this.requestType = requestType;
-        this.fragmentTransaction =fragmentTransaction;
-        this.currentFragment = currentFragment;
-
-        this.requestReply = "ERROR";
-
-
-
-    }
 
     @Override
     protected Void doInBackground(Void... params) {
         InputStream inputStream = null;
-
-            /*alertDialog.setMessage("Data sent, waiting for reply from device...");
-            alertDialog.setCancelable(false);
-            if(!alertDialog.isShowing()) {
-                alertDialog.show();
-            }*/
-        this.requestReply = sendRequest(parameterValue, ipAddress, context,
-                portNumber, inputStream, requestType);
+        this.requestReply = sendRequest(parameterValue, ipAddress, portNumber, requestType);
         return null;
     }
     @Override
     protected void  onPostExecute(Void avoid) {
 
-        Toast.makeText(this.context, this.requestReply, Toast.LENGTH_SHORT).show();
 
-        if(this.requestType.equals("init")) {
 
-            if(this.requestReply.equals("ERROR CANNOT FIND HOST")) {
+        if(this.requestType.equals(RequestMode.INIT)) {
+
+
+            if(this.requestReply.equals(ServerResponse.UNREACHABLE_HOST)) {
 
             /*
             * CALL THE ERROR LOADING INTENT
             *
             * */
-                Intent loading = new Intent(this.context, RemoteActivity.class);
+              /*  Intent loading = new Intent(this.context, RemoteActivity.class);
                 loading.putExtra("status","faliure");
-                context.startActivity(loading);
+                context.startActivity(loading);*/
+                //context.fini
+                Log.d("STEP","UNREACHABLE_HOST");
+
+                LoadingActivity.requestStatus = ConnectionStatus.FAIL;
             }
             else {
-                Intent loading = new Intent(this.context, RemoteActivity.class);
+                /*Intent loading = new Intent(this.context, RemoteActivity.class);
                 loading.putExtra("status","success");
-                context.startActivity(loading);
+                context.startActivity(loading);*/
+                LoadingActivity.requestStatus = ConnectionStatus.SUCCESS;
             }
+            LoadingActivity.changeOnReply = true;
+
 
         }
-        else if(this.requestType.equals("initagain")) {
+        else if(this.requestType.equals(RequestMode.INIT_AGAIN)) {
 
-            if (this.requestReply.equals("ERROR CANNOT FIND HOST")) {//reply from ESP
+            if (this.requestReply.equals(ServerResponse.UNREACHABLE_HOST)) {//reply from ESP
                 //RemoteActivity.status = "failure";
-
+                RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
 
 
             }
@@ -117,20 +97,23 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
             }
 
             //TODO: Move this code to the else part.
-            RemoteActivity.status = "success";
+
+            RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
+
             RemoteActivity.signal = 1;
             /*fragmentTransaction.detach(currentFragment);
             fragmentTransaction.attach(currentFragment);
             fragmentTransaction.commit();*/
-            Log.d("NEW",RemoteActivity.status);
+
 
         }
 
-        else if(this.requestType.equals("rc4key")) {
+        else if(this.requestType.equals(RequestMode.RC4KEY)) {
 
-            if (this.requestReply.equals("AUTH_FAIL")) { //reply from ESP
+            if (this.requestReply.equals(ServerResponse.AUTH_FAIL)) { //reply from ESP
 
                 //RemoteActivity.status = "AUTH_FAIL";
+                RemoteActivity.connectionStatus = ConnectionStatus.AUTH_FAIL;
 
 
             }
@@ -139,15 +122,15 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
             }
 
             //TODO: Move this code to the else part.
-            RemoteActivity.status = "AUTH_SUCCESS";
-
-
+            RemoteActivity.connectionStatus = ConnectionStatus.AUTH_SUCCESS;
+            RemoteActivity.signal = 1;
 
 
         }
-        else if(this.requestType.equals("normal")) {
-            Log.d("type",this.requestType);
-            if(this.requestReply.equals("failure")) {
+        else if(this.requestType.equals(RequestMode.NORMAL)) {
+
+
+            if(this.requestReply.equals(ServerResponse.FAIL)) {
                 //RemoteActivity.status = "FAIL";
 
             }
@@ -155,22 +138,23 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
 
             }
             //TODO: Move this code to the else part.
-            RemoteActivity.status = "SUCCESS";
+
+            RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
             RemoteActivity.signal = 1;
-            Log.d("STATUS",String.valueOf(RemoteActivity.signal));
-            //notify();
+
+
         }
 
 
 
 
-        //Log.d("CONNECTION","DONE");
+
     }
 
 
-    public String sendRequest(ArrayList<String> parameterValue, String ipAddress, Context context,
-                              String portNumber,InputStream inputStream,
-                              String requestType) {
+    public ServerResponse sendRequest(ArrayList<String> parameterValue, String ipAddress,
+                              String portNumber,
+                              RequestMode requestType) {
 
 
             /*
@@ -185,17 +169,20 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
           * normal: Normal Messages
         * */
 
-        String serverResponse = "ERROR CANNOT FIND HOST";
+        InputStream inputStream;
+        String response;
+        int responseCode;
+        ServerResponse serverResponse = ServerResponse.UNREACHABLE_HOST;
 
         String link = "";
 
 
-        if(requestType.equals("init") || requestType.equals("initagain"))
+        if(requestType.equals(RequestMode.INIT) || requestType.equals(RequestMode.INIT_AGAIN))
             link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0);
-        else if(requestType.equals("rc4key"))
+        else if(requestType.equals(RequestMode.RC4KEY))
             link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0)
                     +"&unit="+parameterValue.get(1);
-        else if(requestType.equals("normal"))
+        else if(requestType.equals(RequestMode.NORMAL))
             link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0)
                     +"&code="+parameterValue.get(1);
 
@@ -204,10 +191,16 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             HttpURLConnection.setFollowRedirects(false);
             conn.setRequestMethod("GET");
+
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(5000);
+
             inputStream = new BufferedInputStream(conn.getInputStream());
-            serverResponse = org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8");
+            response = org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8");
+            responseCode = Integer.parseInt(response);
+            serverResponse = ParameterFactory.getServerResponse(responseCode);
+
+
             inputStream.close();
 
         } catch (MalformedURLException e) {

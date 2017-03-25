@@ -2,8 +2,11 @@ package com.example.akhil.epson;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +35,9 @@ public class LoadingActivity extends AppCompatActivity {
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
      */
     private static final boolean AUTO_HIDE = true;
+
+    public static ConnectionStatus requestStatus = null;
+    public static boolean changeOnReply = false;
 
     /**
      * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
@@ -129,18 +135,68 @@ public class LoadingActivity extends AppCompatActivity {
         Log.d("PORT",sharedPreferences.getString(PREF_PORT,"NULL"));
 
         ArrayList<String> parameterValue = new ArrayList<String>();
-        parameterValue.add(0,"init");
+        parameterValue.add(0,ParameterFactory.getMode(RequestMode.INIT));
 
         String ipAddress = sharedPreferences.getString(PREF_IP,"NULL");
         String portNumber = sharedPreferences.getString(PREF_PORT,"NULL");
-        String requestType = "init";
+        RequestMode requestType = RequestMode.INIT;
 
-        new HttpRequestAsyncTask(
-                findViewById(android.R.id.content).getContext(), parameterValue, ipAddress, portNumber,
-                requestType).execute();
-
+        new RequestHandler(findViewById(android.R.id.content).getContext(), parameterValue, ipAddress,
+                portNumber, requestType);
 
 
+
+        //finish();
+
+
+
+
+    }
+
+
+    private class RequestHandler implements Runnable {
+
+
+        private Context context;
+        private RequestMode requestType;
+        private ArrayList<String> parameterValue;
+        String ipAddress, portNumber;
+
+
+
+
+        public RequestHandler(Context context, ArrayList<String> parameterValue, String ipAddress,
+                              String portNumber, RequestMode requestType) {
+
+            this.context = context;
+            this.parameterValue = parameterValue;
+            this.ipAddress = ipAddress;
+            this.portNumber = portNumber;
+            this.requestType = requestType;
+
+            Thread t = new Thread(this, "REQUEST");
+            t.start();
+
+        }
+
+        @Override
+        public void run() {
+
+
+            new HttpRequestAsyncTask(
+                    this.context, this.parameterValue, this.ipAddress, this.portNumber,
+                    this.requestType).execute();
+            while(!changeOnReply) {
+
+                try{Thread.sleep(1000);}catch (Exception e){e.printStackTrace();}
+            }
+            Intent loading = new Intent(this.context, RemoteActivity.class);
+            loading.putExtra("status",requestStatus);
+            context.startActivity(loading);
+            finish();
+
+
+        }
 
     }
 

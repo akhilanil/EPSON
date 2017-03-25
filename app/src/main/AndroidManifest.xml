@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.akhil.epson">
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -20,8 +21,8 @@
         </activity>
         <activity
             android:name=".RemoteActivity"
-            android:label="@string/title_activity_remote"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_remote"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".LoadingActivity"
