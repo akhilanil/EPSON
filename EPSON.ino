@@ -6,7 +6,7 @@
 #define publicKey 3337
 
 #define EPSON 1
-
+//SoftwareSerial esp8266(TX,RX);
 SoftwareSerial esp8266(4,5);
 
 int RC4_LENGTH = 15;
@@ -65,7 +65,6 @@ void doPGRA()
 
         prga[k] = s[(s[i] + s[j]) % RC4_LENGTH];
 
-        Serial.println(prga[k]);
         k++;
           
 
@@ -89,7 +88,11 @@ void setup() {
     sendCommand("AT+CIPSERVER=1,80\r\n",1000,DEBUG); // turn on server on port 80     
 
     in = 0;
-    
+    pinMode(13,OUTPUT);
+    digitalWrite(13,HIGH);
+    delay(1500);
+  digitalWrite(13,LOW);
+  Serial.println("SERVER READY");
 
 
   
@@ -149,34 +152,34 @@ void loop()
                       a = (esp8266).read();
                       while(a!=32) 
                       { 
-                          
                           if(a!=63)
                           {
-                            encryptedKey[i] = a;
+                            encryptedKey[i] = a - 48;
                             i++;
                           } 
                           else
                           {
-                            decryptKey(encryptedKey, i);
+                            decryptKey(encryptedKey, i-1);
                             i = 0;
                           }
                           a = (esp8266).read();
                       }
                       RC4key[in] = '\0';
+                      Serial.print("RC4KEY:");
+                      Serial.println(RC4key);
                       
                       initRC4();
                       doKSA();
                       doPGRA();
-                      Serial.print("RC4KEY:\n");
-                      Serial.println(RC4key);   
+                         
                       sendHTTPResponse(connectionId,requestResponse);
                       break;
                 
                 case 2:
 
-                      int index = 0, num[10];
-                      char encryptedCode[10],code[10];
-                      long int decryptedCode;
+                      int index = 0, num[10],code[10];
+                      char encryptedCode[10];
+                      unsigned long int decryptedCode;
                       
                       /*Moving the pointer 7 times such that it reaches '&value=' */
                       for(i = 0; i<7; i++) {(esp8266).read();}
@@ -185,6 +188,7 @@ void loop()
                       while(a != 32)
                       {
                           encryptedCode[index] = a;
+                          code[index] = a;
                           index++;
                           a = (esp8266).read();
                       }
@@ -197,13 +201,17 @@ void loop()
                       for(i = 0; i < index; i++) 
                       {
                           code[i] = code[i] ^ prga[i];
-                          num[i] = code[i] - 48;
-                          Serial.println(num[i]);
+                          code[i] = code[i] - 48;
+                          
                       }
-
-                      decryptedCode = getRemoteCode(num, i);
+                      Serial.print("Decrypted Code:\n");
+                      printArray(code, index);
+                      Serial.print("\n");
+                      decryptedCode = getRemoteCode(code, i);
+                      Serial.print("Decrypted Code:\n");
+                      Serial.println(decryptedCode);
                       sendDataToDevice(decryptedCode, EPSON);
-
+          
                       sendHTTPResponse(connectionId,requestResponse);  
                       break;
                         
@@ -212,7 +220,19 @@ void loop()
     }
 }
 
-String sendDataToDevice(long int deviceCode, int deviceName) 
+
+void printArray(int val[], int n )
+{
+    Serial.print("\n");
+    for(int i = 0; i < n; i++)
+    {
+      Serial.print(val[i]);
+      Serial.print("  ");
+    }
+    Serial.print("\n");
+}
+
+String sendDataToDevice(unsigned long int deviceCode, int deviceName) 
 {
 
     String response = "9";
@@ -247,15 +267,16 @@ String sendDataToDevice(long int deviceCode, int deviceName)
 *             index: Variable which holds the size of cipher  
 */
 
-long int getRemoteCode(int num[], int index)
+unsigned long int getRemoteCode(int num[], int index)
 {
-    long int remoteCode = 0;
-    int i = index, j = 0; 
+    unsigned long int remoteCode = 0, temp;
+    int i = index - 1, j = 0; 
 
     /*This while loop combines the digits cipher in array to form the required Code */
     while(i >= 0)
     {
-        remoteCode = remoteCode + (num[j] * findPower(10, i));
+        temp = num[j];
+        remoteCode = remoteCode + (temp * findPower(10, i));
         j++;
         i--;
     }
@@ -284,9 +305,10 @@ void decryptKey(int cipher[], int index)
         j++;
         i--;
     }
-
-    mod = publicKey;
     val = num = cipherText;
+
+    power = privateKey;
+    mod = publicKey;
 
     for(i = 1; i<power; i++) 
     {
