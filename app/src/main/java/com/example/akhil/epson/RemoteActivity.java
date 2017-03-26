@@ -200,7 +200,7 @@ public class RemoteActivity extends AppCompatActivity {
                 tryagain.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //tryagain.setEnabled(false);
+                        tryagain.setEnabled(false);
                         ArrayList<String> parameterValue = new ArrayList<String>();
                         parameterValue.add(0,ParameterFactory.getMode(RequestMode.INIT));
 
@@ -219,7 +219,7 @@ public class RemoteActivity extends AppCompatActivity {
 
                         RequestHandler requestHandler = new RequestHandler(v.getContext(), parameterValue,
                                 ipAddress, portNumber,
-                                requestType, fragmentTransaction, currentFragment);
+                                requestType, fragmentTransaction, currentFragment, tryagain);
 
                         new InitRC4Encryption(requestHandler);
                         new InitRequest(requestHandler);
@@ -379,6 +379,7 @@ public class RemoteActivity extends AppCompatActivity {
             private ArrayList<String> parameterValue;
             private FragmentTransaction fragmentTransaction;
             private Fragment currentFragment;
+            private Button tryAgain;
 
             public RequestHandler(Context context, ArrayList<String> parameterValue, String ipAddress,
                                   String portNumber, RequestMode requestType,
@@ -391,6 +392,23 @@ public class RemoteActivity extends AppCompatActivity {
                 this.requestType = requestType;
                 this.fragmentTransaction =fragmentTransaction;
                 this.currentFragment = currentFragment;
+                this.tryAgain = null;
+
+            }
+
+            public RequestHandler(Context context, ArrayList<String> parameterValue, String ipAddress,
+                                  String portNumber, RequestMode requestType,
+                                  FragmentTransaction fragmentTransaction, Fragment currentFragment,
+                                  Button tryAgain) {
+
+                this.context = context;
+                this.ipAddress = ipAddress;
+                this.parameterValue = parameterValue;
+                this.portNumber = portNumber;
+                this.requestType = requestType;
+                this.fragmentTransaction =fragmentTransaction;
+                this.currentFragment = currentFragment;
+                this.tryAgain = tryAgain;
 
             }
 
@@ -404,12 +422,13 @@ public class RemoteActivity extends AppCompatActivity {
                         requestType).execute();
 
 
+                final Handler handler = new Handler(Looper.getMainLooper());
+
                 while(RemoteActivity.signal == 0){
 
                     try{Thread.sleep(1000);}catch (Exception e){e.printStackTrace();}
 
                 }
-
                 notify();
 
 
@@ -519,6 +538,17 @@ public class RemoteActivity extends AppCompatActivity {
                         }
                     });
                 }
+                final Handler handler = new Handler(Looper.getMainLooper());
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if(tryAgain != null)
+                            tryAgain.setEnabled(true);
+
+                    }
+                });
                 RemoteActivity.signal = 0;
             }
         }
@@ -548,40 +578,37 @@ public class RemoteActivity extends AppCompatActivity {
 
             Log.d("RC4CIPHER",code);
 
+            if(!code.equals("XX")) {
 
-            Toast.makeText(v.getContext(), code, Toast.LENGTH_SHORT).show();
+                Toast.makeText(v.getContext(), code, Toast.LENGTH_SHORT).show();
+                parameterValue.add(0, ParameterFactory.getMode(RequestMode.NORMAL)); // request mode
+                parameterValue.add(1, code);
+                new HttpRequestAsyncTask(v.getContext(), parameterValue, finalipAddress, finalportNumber,
+                        requestType).execute();
 
-
-            parameterValue.add(0, ParameterFactory.getMode(RequestMode.NORMAL)); // request mode
-            parameterValue.add(1,code);
-
-
-            new HttpRequestAsyncTask (
-                   v.getContext(), parameterValue, finalipAddress, finalportNumber,
-                    requestType).execute();
-
-            final ProgressDialog progressCircle = new ProgressDialog(v.getContext());
-            progressCircle.setCancelable(false);
-            progressCircle.setMessage("Please Wait...");
-            progressCircle.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressCircle.show();
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    while(RemoteActivity.signal == 0){
-                        try{
-
-                          Thread.sleep(2000);
-
-                        }catch(Exception e){e.printStackTrace();}
+                final ProgressDialog progressCircle = new ProgressDialog(v.getContext());
+                progressCircle.setCancelable(false);
+                progressCircle.setMessage("Please Wait...");
+                progressCircle.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressCircle.show();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (RemoteActivity.signal == 0) {
+                            try {
+                                Thread.sleep(2000);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        progressCircle.dismiss();
                     }
-                    progressCircle.dismiss();
-                }
-            }).start();
+                }).start();
 
-
+            }
+            else {
+                Toast.makeText(v.getContext(), "Code not Found", Toast.LENGTH_SHORT).show();
+            }
 
 
         }

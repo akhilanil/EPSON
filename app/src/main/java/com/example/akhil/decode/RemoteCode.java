@@ -80,7 +80,6 @@ public class RemoteCode {
         }
 
         //if(json.equals(""))
-            Log.d("JSON",json);
         return json;
 
     }

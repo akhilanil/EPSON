@@ -61,94 +61,46 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
 
 
             if(this.requestReply.equals(ServerResponse.UNREACHABLE_HOST)) {
-
-            /*
-            * CALL THE ERROR LOADING INTENT
-            *
-            * */
-              /*  Intent loading = new Intent(this.context, RemoteActivity.class);
-                loading.putExtra("status","faliure");
-                context.startActivity(loading);*/
-                //context.fini
                 Log.d("STEP","UNREACHABLE_HOST");
-
                 LoadingActivity.requestStatus = ConnectionStatus.FAIL;
             }
             else {
-                /*Intent loading = new Intent(this.context, RemoteActivity.class);
-                loading.putExtra("status","success");
-                context.startActivity(loading);*/
                 LoadingActivity.requestStatus = ConnectionStatus.SUCCESS;
             }
-            LoadingActivity.requestStatus = ConnectionStatus.SUCCESS;
             LoadingActivity.changeOnReply = true;
-
-
         }
         else if(this.requestType.equals(RequestMode.INIT_AGAIN)) {
 
             if (this.requestReply.equals(ServerResponse.UNREACHABLE_HOST)) {//reply from ESP
-                //RemoteActivity.status = "failure";
                 RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
-
-
             }
             else {
-
+                RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
             }
-
-            //TODO: Move this code to the else part.
-
-            RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
-
             RemoteActivity.signal = 1;
-            /*fragmentTransaction.detach(currentFragment);
-            fragmentTransaction.attach(currentFragment);
-            fragmentTransaction.commit();*/
-
-
         }
 
         else if(this.requestType.equals(RequestMode.RC4KEY)) {
 
             if (this.requestReply.equals(ServerResponse.AUTH_FAIL)) { //reply from ESP
-
-                //RemoteActivity.status = "AUTH_FAIL";
                 RemoteActivity.connectionStatus = ConnectionStatus.AUTH_FAIL;
-
-
             }
             else {
-
+                RemoteActivity.connectionStatus = ConnectionStatus.AUTH_SUCCESS;
             }
-
-            //TODO: Move this code to the else part.
-            RemoteActivity.connectionStatus = ConnectionStatus.AUTH_SUCCESS;
             RemoteActivity.signal = 1;
-
-
         }
         else if(this.requestType.equals(RequestMode.NORMAL)) {
 
 
             if(this.requestReply.equals(ServerResponse.FAIL)) {
-                //RemoteActivity.status = "FAIL";
-
+                RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
             }
             else {
-
+                RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
             }
-            //TODO: Move this code to the else part.
-
-            RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
             RemoteActivity.signal = 1;
-
-
         }
-
-
-
-
 
     }
 
@@ -182,10 +134,10 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
             link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0);
         else if(requestType.equals(RequestMode.RC4KEY))
             link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0)
-                    +"&unit="+parameterValue.get(1);
+                    +"&value="+parameterValue.get(1);
         else if(requestType.equals(RequestMode.NORMAL))
             link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0)
-                    +"&code="+parameterValue.get(1);
+                    +"&value="+parameterValue.get(1);
 
         try {
             URL url = new URL(link);

@@ -28,7 +28,10 @@ public class EncryptCode {
 
         Log.d("CODE",buttonCode);
 
-        encryptedCode = rc4Encryption.encryptCode(buttonCode);
+        if(!buttonCode.equals("XX"))
+            encryptedCode = rc4Encryption.encryptCode(buttonCode);
+        else
+            encryptedCode = buttonCode;
 
 
         return  encryptedCode;
