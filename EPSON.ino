@@ -306,10 +306,10 @@ void decryptKey(int cipher[], int index)
 * Parameters: base: base value
 *             expo: exponent value
 */
-int findPower(int base, int expo) 
+long int findPower(int base, int expo) 
 {
     int i;
-    int val = 1;
+    long int val = 1;
     for(i = 0; i<expo; i++) 
     {
         val = val * base;
