@@ -22,7 +22,6 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
 
 
     private String ipAddress, portNumber;
-    private Context context;
 
     private ServerResponse requestReply;
 
@@ -30,10 +29,9 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
     private RequestMode requestType;
     private ArrayList<String> parameterValue;
 
-    public HttpRequestAsyncTask(Context context, ArrayList<String> parameterValue, String ipAddress,
+    public HttpRequestAsyncTask(ArrayList<String> parameterValue, String ipAddress,
                                 String portNumber, RequestMode requestType) {
 
-        this.context = context;
         this.ipAddress = ipAddress;
         this.parameterValue = parameterValue;
         this.portNumber = portNumber;
@@ -101,6 +99,10 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
             }
             RemoteActivity.signal = 1;
         }
+        else if(this.requestType.equals(RequestMode.FINISH)) {
+
+            RemoteActivity.signal = 1;
+        }
 
     }
 
@@ -120,6 +122,7 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
           * init/initagain : Initial Message Which Checks The Connection
           * rc4key: Initialises The RSA KEY
           * normal: Normal Messages
+          * finish: To disconnect
         * */
 
         InputStream inputStream;
@@ -138,6 +141,8 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
         else if(requestType.equals(RequestMode.NORMAL))
             link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0)
                     +"&value="+parameterValue.get(1);
+        else if(this.requestType.equals(RequestMode.FINISH))
+            link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0);
 
         try {
             URL url = new URL(link);

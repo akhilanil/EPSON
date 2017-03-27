@@ -184,7 +184,7 @@ public class LoadingActivity extends AppCompatActivity {
 
 
             new HttpRequestAsyncTask(
-                    this.context, this.parameterValue, this.ipAddress, this.portNumber,
+                    this.parameterValue, this.ipAddress, this.portNumber,
                     this.requestType).execute();
             while(!changeOnReply) {
 

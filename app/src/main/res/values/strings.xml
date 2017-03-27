@@ -134,4 +134,14 @@
     <string name="pref_title_vibrate">Vibrate</string>
 
 
+    <!--SETTINGS-->
+
+    <string name="IP_ADDRESS">IP Address</string>
+    <string name="DEFAULT_IP">IP ADDRESS OF ESP</string>
+
+    <string name="PORT">PORT</string>
+    <string name="DEFAULT_PORT">LISTENING PORT OF ESP</string>
+
+
+
 </resources>

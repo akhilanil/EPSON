@@ -28,6 +28,12 @@
             android:name=".LoadingActivity"
             android:label="@string/title_activity_loading"
             android:theme="@style/FullscreenTheme" />
+        <activity
+            android:name=".TestActivity"
+            android:label="@string/title_activity_test"></activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="SettingsActivity"></activity>
     </application>
 
 </manifest>

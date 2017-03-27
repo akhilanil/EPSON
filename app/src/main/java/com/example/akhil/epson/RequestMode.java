@@ -10,7 +10,8 @@ public enum RequestMode {
     INIT,
     RC4KEY,
     INIT_AGAIN,
-    NORMAL
+    NORMAL,
+    FINISH
 
 
 }

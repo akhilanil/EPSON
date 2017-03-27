@@ -23,6 +23,9 @@ public class ParameterFactory {
             case NORMAL:
                 /*2 indicates Normal*/
                 return "2";
+            case FINISH:
+                /*9 indicates Finish*/
+                return "9";
             default:
                 return "ERROR";
 

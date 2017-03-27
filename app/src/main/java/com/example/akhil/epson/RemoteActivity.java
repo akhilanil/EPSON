@@ -3,6 +3,7 @@ package com.example.akhil.epson;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
@@ -69,12 +70,13 @@ public class RemoteActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private static ViewPager mViewPager;
+
+    /*Variables for cntrolling apps' functioning*/
     private static boolean change;
     public static ConnectionStatus connectionStatus;
     public static int signal = 0;
-
     /*Variable used to check whether RC4 key is initialized */
-    private static boolean isRC4Initialized = false;
+    private static boolean isRC4Initialized;
 
 
     @Override
@@ -114,6 +116,8 @@ public class RemoteActivity extends AppCompatActivity {
             }
         });
 
+
+
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
@@ -124,24 +128,52 @@ public class RemoteActivity extends AppCompatActivity {
         if(extras != null)
             connectionStatus = (ConnectionStatus) extras.get("status");
 
-
+        setDefaults();
 
     }
 
-    public static void  screenUpdate() {
 
-        mViewPager.getAdapter().notifyDataSetChanged();
+    @Override
+    protected void onDestroy() {
+
+
+
+        /*new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+
+                ArrayList<String> parameterValue = new ArrayList<String>();
+                String ipAddress = sharedPreferences.getString(PREF_IP,"");
+                String port = sharedPreferences.getString(PREF_PORT,"");
+                parameterValue.add(0,ParameterFactory.getMode(RequestMode.FINISH));
+                Log.d("DONE","DESTROYED");
+                RemoteActivity.signal = 0;
+                new HttpRequestAsyncTask(parameterValue, ipAddress, port, RequestMode.FINISH).execute();
+
+                while(RemoteActivity.signal == 0) {
+                    try{Thread.sleep(1000);}catch (Exception e){}
+
+                }
+            }
+        }).start();*/
+        Log.d("DONE","DESTROYED");
+        //super.onDestroy();
+    }
+
+    /*Sets all controlling values to default  */
+    public static void setDefaults() {
+
+        RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
+        RemoteActivity.signal = 0;
+        RemoteActivity.change = false;
+        RemoteActivity.isRC4Initialized = false;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_remote, menu);
-
-
-
-
-
         return true;
     }
 
@@ -154,10 +186,11 @@ public class RemoteActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-
+            //On Selecting Settings
+            Intent settings = new Intent(RemoteActivity.this, SettingsActivity.class);
+            startActivity(settings);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -172,6 +205,7 @@ public class RemoteActivity extends AppCompatActivity {
         private static final String ARG_SECTION_NUMBER = "section_number";
 
         public PlaceholderFragment() {
+
         }
 
         /**
@@ -224,24 +258,14 @@ public class RemoteActivity extends AppCompatActivity {
                         new InitRC4Encryption(requestHandler);
                         new InitRequest(requestHandler);
                         Log.d("Status","CHECK");
-
-
-
                     }
                 });
-
-
-
             }
-
-
-
-
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("1")) {
                 rootView = inflater.inflate(R.layout.fragment_hand, container, false);
 
                 if(!isRC4Initialized) {
-                   // Log.d("Status","Initializing");
+
                     ArrayList<String> parameterValue = new ArrayList<String>();
                     String ipAddress = sharedPreferences.getString(PREF_IP, "NULL");
                     String portNumber = sharedPreferences.getString(PREF_PORT, "NULL");
@@ -259,20 +283,18 @@ public class RemoteActivity extends AppCompatActivity {
 
                 }
                 initView(rootView);
-
-
-
             }
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("2")) {
                 rootView = inflater.inflate(R.layout.fragment_voice, container, false);
-
-
             }
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("3"))
                 rootView = inflater.inflate(R.layout.fragment_help, container, false);
-
             return rootView;
         }
+
+
+
+
 
         public void initView(View rootView) {
 
@@ -290,10 +312,6 @@ public class RemoteActivity extends AppCompatActivity {
             ((ImageButton) rootView.findViewById(R.id.zoomdec)).setOnClickListener(new ButtonClick());
             ((ImageButton) rootView.findViewById(R.id.volinc)).setOnClickListener(new ButtonClick());
             ((ImageButton) rootView.findViewById(R.id.voldec)).setOnClickListener(new ButtonClick());
-
-
-
-
 
             ((Button) rootView.findViewById(R.id.source)).setOnClickListener(new ButtonClick());
             ((Button) rootView.findViewById(R.id.mute)).setOnClickListener(new ButtonClick());
@@ -418,7 +436,7 @@ public class RemoteActivity extends AppCompatActivity {
 
 
                 new HttpRequestAsyncTask (
-                        this.context, parameterValue, ipAddress, portNumber,
+                        parameterValue, ipAddress, portNumber,
                         requestType).execute();
 
 
@@ -484,7 +502,7 @@ public class RemoteActivity extends AppCompatActivity {
                                     parameterValue.add(1,encryptedPassword);
                                     requestType = RequestMode.RC4KEY;
 
-                                    new HttpRequestAsyncTask(context, parameterValue, ipAddress, portNumber,
+                                    new HttpRequestAsyncTask(parameterValue, ipAddress, portNumber,
                                             requestType).execute();
                                     while(RemoteActivity.signal == 0) {
                                         try {
@@ -557,10 +575,7 @@ public class RemoteActivity extends AppCompatActivity {
 
     public static class ButtonClick implements View.OnClickListener {
 
-        //String buttonName;
-        /*public ButtonClick(String buttonName) {
-            this.buttonName = buttonName;
-        }*/
+
 
         public void onClick(View v) {
 
@@ -583,7 +598,7 @@ public class RemoteActivity extends AppCompatActivity {
                 Toast.makeText(v.getContext(), code, Toast.LENGTH_SHORT).show();
                 parameterValue.add(0, ParameterFactory.getMode(RequestMode.NORMAL)); // request mode
                 parameterValue.add(1, code);
-                new HttpRequestAsyncTask(v.getContext(), parameterValue, finalipAddress, finalportNumber,
+                new HttpRequestAsyncTask(parameterValue, finalipAddress, finalportNumber,
                         requestType).execute();
 
                 final ProgressDialog progressCircle = new ProgressDialog(v.getContext());
