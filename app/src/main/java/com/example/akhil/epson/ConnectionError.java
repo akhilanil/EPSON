@@ -68,25 +68,7 @@ public class ConnectionError extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        Log.d("TEST","INSIDE");
-        Button tryagain = (Button) container.findViewById(R.id.tryagain);
-        tryagain.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                /*ArrayList<String> parameterValue = new ArrayList<String>();
-                parameterValue.add(0,"init");
-
-                String ipAddress = sharedPreferences.getString(PREF_IP,"NULL");
-                String portNumber = sharedPreferences.getString(PREF_PORT,"NULL");
-                String requestType = "init";
-
-                new HttpRequestAsyncTask(
-                        v.findViewById(android.R.id.content).getContext(), parameterValue, ipAddress, portNumber,
-                        requestType).execute();*/
-                Log.d("TEST","CLICKED");
-            }
-        });
 
         return inflater.inflate(R.layout.fragment_connection_error, container, false);
 

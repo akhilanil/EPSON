@@ -12,10 +12,17 @@
         android:capitalize="words"
         android:title="@string/PORT"
         android:key="port"
-        android:defaultValue="@string/DEFAULT_PORT"/>
+        android:defaultValue="@string/DEFAULT_PORT"
+        android:maxLines="1"
+        android:singleLine="true"/>
 
-
-
+    <EditTextPreference
+        android:capitalize="words"
+        android:title="@string/CHANGEKEY"
+        android:key="changekey"
+        android:defaultValue="@string/DEFAULT_CAHNGEKEY"
+        android:maxLines="1"
+        android:singleLine="true"/>
 
 
 </PreferenceScreen>

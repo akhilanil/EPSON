@@ -143,16 +143,7 @@ public class LoadingActivity extends AppCompatActivity {
 
         new RequestHandler(findViewById(android.R.id.content).getContext(), parameterValue, ipAddress,
                 portNumber, requestType);
-
-
-
-        //finish();
-
-
-
-
     }
-
 
     private class RequestHandler implements Runnable {
 
@@ -210,6 +201,11 @@ public class LoadingActivity extends AppCompatActivity {
         delayedHide(100);
     }
 
+    @Override
+    protected void onDestroy() {
+        Log.d("DONE","Loading");
+        super.onDestroy();
+    }
     private void toggle() {
         if (mVisible) {
             hide();

@@ -5,10 +5,12 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_main2">Main2Activity</string>
     <string name="action_settings">Settings</string>
+    <string name="action_reload">Reload</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_remote">RemoteActivity</string>
 
-    <string name="connectin_error">ERROR IN CONNECTION. YOU CAN CHANGE IP ADDRESS FROM SETTINGS</string>
+    <string name="connection_error">ERROR IN CONNECTION. YOU CAN CHANGE IP ADDRESS FROM SETTINGS</string>
+    <string name="auth_error">AUTHENTICATION ERROR. YOU CAN CHANGE KEY FROM SETTINGS </string>
     <string name="try_again">TRY AGAIN</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -142,6 +144,8 @@
     <string name="PORT">PORT</string>
     <string name="DEFAULT_PORT">LISTENING PORT OF ESP</string>
 
+    <string name="CHANGEKEY">CHANGE KEY</string>
+    <string name="DEFAULT_CAHNGEKEY">Enter Login Key</string>
 
 
 </resources>

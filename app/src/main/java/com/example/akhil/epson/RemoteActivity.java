@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.akhil.decode.EncryptCode;
@@ -72,11 +73,11 @@ public class RemoteActivity extends AppCompatActivity {
     private static ViewPager mViewPager;
 
     /*Variables for cntrolling apps' functioning*/
-    private static boolean change;
+    public static boolean change;
     public static ConnectionStatus connectionStatus;
     public static int signal = 0;
     /*Variable used to check whether RC4 key is initialized */
-    private static boolean isRC4Initialized;
+    public static boolean isRC4Initialized;
 
 
     @Override
@@ -121,7 +122,7 @@ public class RemoteActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-       sharedPreferences =
+        sharedPreferences =
                 getSharedPreferences("HTTP_HELPER_PREFS", Context.MODE_PRIVATE);
 
         Bundle extras = getIntent().getExtras();
@@ -138,7 +139,7 @@ public class RemoteActivity extends AppCompatActivity {
 
 
 
-        /*new Thread(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
 
@@ -156,9 +157,9 @@ public class RemoteActivity extends AppCompatActivity {
 
                 }
             }
-        }).start();*/
-        Log.d("DONE","DESTROYED");
-        //super.onDestroy();
+        }).start();
+        Log.d("DONE","Remote");
+        super.onDestroy();
     }
 
     /*Sets all controlling values to default  */
@@ -191,6 +192,14 @@ public class RemoteActivity extends AppCompatActivity {
             startActivity(settings);
             return true;
         }
+
+        if(id == R.id.action_reload) {
+
+
+
+
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -439,15 +448,42 @@ public class RemoteActivity extends AppCompatActivity {
                         parameterValue, ipAddress, portNumber,
                         requestType).execute();
 
+                 RemoteActivity.signal = 0;
+                /*final Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("CHECK","HEY");
+                        final ProgressDialog progressCircle = new ProgressDialog(context);
 
-                final Handler handler = new Handler(Looper.getMainLooper());
+                        progressCircle.setCancelable(false);
+                        progressCircle.setMessage("Please Wait...");
+                        progressCircle.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                        progressCircle.show();
+
+                        while(RemoteActivity.signal == 0) {
+                            try {
+                                Thread.sleep(1000);
+                                Log.d("CHECK",String.valueOf(RemoteActivity.signal));
+                            }catch (Exception e){e.printStackTrace();}
+                        }
+                        try {
+                            Thread.sleep(1000);
+                            Log.d("CHECK",String.valueOf(RemoteActivity.signal));
+                        }catch (Exception e){e.printStackTrace();}
+
+                        progressCircle.dismiss();
+                    }
+                });*/
 
                 while(RemoteActivity.signal == 0){
 
                     try{Thread.sleep(1000);}catch (Exception e){e.printStackTrace();}
 
                 }
-                notify();
+
+
+                notifyAll();
 
 
 
@@ -529,6 +565,16 @@ public class RemoteActivity extends AppCompatActivity {
                                         RemoteActivity.change = true;
                                         isRC4Initialized = true;
 
+                                    }
+                                    else if(RemoteActivity.connectionStatus.equals(ConnectionStatus.AUTH_FAIL)) {
+
+                                        fragmentTransaction.detach(currentFragment);
+                                        fragmentTransaction.attach(currentFragment);
+                                        fragmentTransaction.commit();
+
+                                        RemoteActivity.change = true;
+                                        TextView errorText  = (TextView) ((RemoteActivity) context).findViewById(R.id.errortext);
+                                        errorText.setText(R.string.auth_error);
                                     }
 
                             }

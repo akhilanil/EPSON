@@ -38,9 +38,10 @@ public class MainActivity extends AppCompatActivity {
         ip = (EditText)findViewById(R.id.ip);
         port = (EditText)findViewById(R.id.port);
 
-        editor.putString(PREF_IP,"192.168.2.102");
+        /*editor.putString(PREF_IP,"192.168.2.102");
         editor.putString(PREF_PORT,"80");
         editor.commit();
+        */
 
 
         if(!sharedPreferences.getString(PREF_IP,"").equals("")){
@@ -80,5 +81,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         AssetManager assetManager = getAssets();
+    }
+    @Override
+    protected void onDestroy() {
+        Log.d("DONE","MAIN");
+        super.onDestroy();
     }
 }
