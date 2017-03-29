@@ -185,6 +185,8 @@ void loop()
                           strcpy(RC4key, authenticationKey);
                           in = ain;
                           isRC4Initialised = !isRC4Initialised;
+                          Serial.print("AUTH KEY:");
+                          Serial.println(RC4key);
                           initRC4();
                           doKSA();
                           doPGRA();
@@ -279,6 +281,7 @@ String sendDataToDevice(unsigned long int deviceCode, int deviceName)
     switch(deviceName)
     {
         case 1:
+
               for (int i = 0; i < 2; i++)
               {
                   irsend.sendNEC(deviceCode, deviceCode); // Sony TV power code
@@ -356,7 +359,7 @@ void decryptKey(int cipher[], int index)
         val = temp % mod;
     }
 
-    RC4key[in] = val;
+    authenticationKey[ain] = val;
     ain++;
     
   

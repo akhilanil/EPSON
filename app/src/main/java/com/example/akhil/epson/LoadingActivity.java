@@ -183,6 +183,7 @@ public class LoadingActivity extends AppCompatActivity {
             }
             Intent loading = new Intent(this.context, RemoteActivity.class);
             loading.putExtra("status",requestStatus);
+
             context.startActivity(loading);
             finish();
 

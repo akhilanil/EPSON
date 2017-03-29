@@ -124,12 +124,12 @@ public class RemoteActivity extends AppCompatActivity {
 
         sharedPreferences =
                 getSharedPreferences("HTTP_HELPER_PREFS", Context.MODE_PRIVATE);
-
+        setDefaults();
         Bundle extras = getIntent().getExtras();
         if(extras != null)
             connectionStatus = (ConnectionStatus) extras.get("status");
 
-        setDefaults();
+
 
     }
 
@@ -234,11 +234,20 @@ public class RemoteActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
              View rootView = null;
 
-            if(RemoteActivity.connectionStatus.equals(ConnectionStatus.FAIL)) {
+            if(RemoteActivity.connectionStatus.equals(ConnectionStatus.FAIL)
+                    || RemoteActivity.connectionStatus.equals(ConnectionStatus.AUTH_FAIL)) {
 
                 rootView = inflater.inflate(R.layout.fragment_connection_error, container, false);
                 final Fragment currentFragment = this;
                 final Button tryagain = (Button)rootView.findViewById(R.id.tryagain);
+                if(RemoteActivity.connectionStatus.equals(ConnectionStatus.AUTH_FAIL)) {
+
+                    TextView errorText  = (TextView) rootView.findViewById(R.id.errortext);
+                    if(errorText == null )
+                        Log.d("Error","NULL");
+                    errorText.setText(getString(R.string.auth_error));
+
+                }
 
                 tryagain.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -260,7 +269,7 @@ public class RemoteActivity extends AppCompatActivity {
                         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-                        RequestHandler requestHandler = new RequestHandler(v.getContext(), parameterValue,
+                        RequestHandler requestHandler = new RequestHandler(v, parameterValue,
                                 ipAddress, portNumber,
                                 requestType, fragmentTransaction, currentFragment, tryagain);
 
@@ -284,7 +293,7 @@ public class RemoteActivity extends AppCompatActivity {
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     RemoteActivity.signal = 1;
-                    RequestHandler requestHandler = new RequestHandler(rootView.getContext(), parameterValue,
+                    RequestHandler requestHandler = new RequestHandler(rootView, parameterValue,
                             ipAddress, portNumber,
                             requestType, fragmentTransaction, currentFragment);
 
@@ -407,12 +416,14 @@ public class RemoteActivity extends AppCompatActivity {
             private FragmentTransaction fragmentTransaction;
             private Fragment currentFragment;
             private Button tryAgain;
+            private View rootView;
 
-            public RequestHandler(Context context, ArrayList<String> parameterValue, String ipAddress,
+            public RequestHandler(View rootView, ArrayList<String> parameterValue, String ipAddress,
                                   String portNumber, RequestMode requestType,
                                   FragmentTransaction fragmentTransaction, Fragment currentFragment) {
 
-                this.context = context;
+                this.rootView = rootView;
+                this.context = rootView.getContext();
                 this.ipAddress = ipAddress;
                 this.parameterValue = parameterValue;
                 this.portNumber = portNumber;
@@ -423,12 +434,13 @@ public class RemoteActivity extends AppCompatActivity {
 
             }
 
-            public RequestHandler(Context context, ArrayList<String> parameterValue, String ipAddress,
+            public RequestHandler(View rootView, ArrayList<String> parameterValue, String ipAddress,
                                   String portNumber, RequestMode requestType,
                                   FragmentTransaction fragmentTransaction, Fragment currentFragment,
                                   Button tryAgain) {
 
-                this.context = context;
+                this.rootView = rootView;
+                this.context = rootView.getContext();
                 this.ipAddress = ipAddress;
                 this.parameterValue = parameterValue;
                 this.portNumber = portNumber;
@@ -573,8 +585,7 @@ public class RemoteActivity extends AppCompatActivity {
                                         fragmentTransaction.commit();
 
                                         RemoteActivity.change = true;
-                                        TextView errorText  = (TextView) ((RemoteActivity) context).findViewById(R.id.errortext);
-                                        errorText.setText(R.string.auth_error);
+
                                     }
 
                             }

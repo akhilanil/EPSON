@@ -156,6 +156,7 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
             inputStream = new BufferedInputStream(conn.getInputStream());
             response = org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8");
             responseCode = Integer.parseInt(response);
+            Log.d("RESPONSE",response);
             serverResponse = ParameterFactory.getServerResponse(responseCode);
 
 
