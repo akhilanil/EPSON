@@ -57,6 +57,9 @@ public class RemoteActivity extends AppCompatActivity {
     public static String finalipAddress,finalportNumber;
 
 
+    private static boolean isBackButtonPressed = false;
+
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -75,7 +78,7 @@ public class RemoteActivity extends AppCompatActivity {
     /*Variables for cntrolling apps' functioning*/
     public static boolean change;
     public static ConnectionStatus connectionStatus;
-    public static int signal = 0;
+    public static int signal = 0; // Indicates whether change in page is needed
     /*Variable used to check whether RC4 key is initialized */
     public static boolean isRC4Initialized;
 
@@ -129,42 +132,59 @@ public class RemoteActivity extends AppCompatActivity {
         if(extras != null)
             connectionStatus = (ConnectionStatus) extras.get("status");
 
-
+        startService(new Intent(this, NetworkDisconnect.class));
 
     }
 
 
     @Override
     protected void onDestroy() {
+        Log.d("DONE","Remote");
+        //disconnectRemote();
+        super.onDestroy();
+    }
 
 
+    @Override
+    public void onBackPressed() {
+
+        if(!isBackButtonPressed) {
+            isBackButtonPressed = !isBackButtonPressed;
+            Toast.makeText(RemoteActivity.this, "Press Again to Exit", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            disconnectRemote();
+            finish();
+        }
+    }
+
+
+    private void disconnectRemote () {
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-
-
                 ArrayList<String> parameterValue = new ArrayList<String>();
-                String ipAddress = sharedPreferences.getString(PREF_IP,"");
-                String port = sharedPreferences.getString(PREF_PORT,"");
+                String ipAddress = sharedPreferences.getString(PREF_IP,"192.168.2.101");
+                String port = sharedPreferences.getString(PREF_PORT,"80");
                 parameterValue.add(0,ParameterFactory.getMode(RequestMode.FINISH));
-                Log.d("DONE","DESTROYED");
+
                 RemoteActivity.signal = 0;
                 new HttpRequestAsyncTask(parameterValue, ipAddress, port, RequestMode.FINISH).execute();
-
                 while(RemoteActivity.signal == 0) {
                     try{Thread.sleep(1000);}catch (Exception e){}
-
                 }
+                Log.d("DONE","DESTROYED");
+
             }
         }).start();
-        Log.d("DONE","Remote");
-        super.onDestroy();
-    }
 
+    }
     /*Sets all controlling values to default  */
     public static void setDefaults() {
 
+
+        Log.d("Steps","DEFAULT" );
         RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
         RemoteActivity.signal = 0;
         RemoteActivity.change = false;
@@ -196,8 +216,75 @@ public class RemoteActivity extends AppCompatActivity {
         if(id == R.id.action_reload) {
 
 
+            /*Sending new Http request and reloading the Activity */
+
+            final ArrayList<String> parameterValue = new ArrayList<String>();
+
+            parameterValue.add(0,ParameterFactory.getMode(RequestMode.INIT));
+            final String ipAddress = sharedPreferences.getString(PREF_IP,"192.168.2.101");
+            final String portNumber = sharedPreferences.getString(PREF_PORT,"80");
+            final RequestMode requestType = RequestMode.RELOAD;
+            RemoteActivity.signal = 0;
 
 
+            final ProgressDialog progressCircle = new ProgressDialog(RemoteActivity.this);
+            progressCircle.setCancelable(false);
+            progressCircle.setMessage("Reloading...");
+            progressCircle.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressCircle.show();
+
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    new HttpRequestAsyncTask(
+                            parameterValue, ipAddress, portNumber,
+                            requestType).execute();
+                    while(RemoteActivity.signal == 0) {
+                        Log.d("STEP",String.valueOf(RemoteActivity.signal));
+                        try{Thread.sleep(1000);}catch (Exception e){e.printStackTrace();}
+                    }
+                    progressCircle.dismiss();
+
+                    Intent refreshIntent = getIntent();
+                    refreshIntent.putExtra("status",RemoteActivity.connectionStatus);
+                    setDefaults();
+                    finish();
+                    startActivity(refreshIntent);
+                }
+            }).start();
+
+        }
+
+        if(id == R.id.action_signout ) {
+
+            final ArrayList<String> parameterValue = new ArrayList<String>();
+            final String ipAddress = sharedPreferences.getString(PREF_IP,"192.168.2.101");
+            final String port = sharedPreferences.getString(PREF_PORT,"80");
+            parameterValue.add(0,ParameterFactory.getMode(RequestMode.FINISH));
+
+            final ProgressDialog progressCircle = new ProgressDialog(RemoteActivity.this);
+            progressCircle.setCancelable(false);
+            progressCircle.setMessage("Signing Out...");
+            progressCircle.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressCircle.show();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    RemoteActivity.signal = 0;
+                    new HttpRequestAsyncTask(parameterValue, ipAddress, port, RequestMode.FINISH).execute();
+                    while(RemoteActivity.signal == 0) {
+                        try{Thread.sleep(1000);}catch (Exception e){}
+                    }
+                    progressCircle.dismiss();
+                    try{Thread.sleep(500);}catch (Exception e){}
+                    finish();
+                    Log.d("STEP","END");
+                }
+            }).start();
         }
 
         return super.onOptionsItemSelected(item);
@@ -234,10 +321,12 @@ public class RemoteActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
              View rootView = null;
 
+
             if(RemoteActivity.connectionStatus.equals(ConnectionStatus.FAIL)
                     || RemoteActivity.connectionStatus.equals(ConnectionStatus.AUTH_FAIL)) {
 
                 rootView = inflater.inflate(R.layout.fragment_connection_error, container, false);
+                Log.d("VALUES","FAIL");
                 final Fragment currentFragment = this;
                 final Button tryagain = (Button)rootView.findViewById(R.id.tryagain);
                 if(RemoteActivity.connectionStatus.equals(ConnectionStatus.AUTH_FAIL)) {
@@ -307,6 +396,9 @@ public class RemoteActivity extends AppCompatActivity {
             }
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("3"))
                 rootView = inflater.inflate(R.layout.fragment_help, container, false);
+
+
+            Log.d("VALUES",String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
         }
 
@@ -668,7 +760,7 @@ public class RemoteActivity extends AppCompatActivity {
                     public void run() {
                         while (RemoteActivity.signal == 0) {
                             try {
-                                Thread.sleep(2000);
+                                Thread.sleep(1000);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

@@ -11,6 +11,7 @@ public enum RequestMode {
     RC4KEY,
     INIT_AGAIN,
     NORMAL,
+    RELOAD,
     FINISH
 
 

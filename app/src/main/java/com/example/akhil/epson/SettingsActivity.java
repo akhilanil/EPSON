@@ -117,6 +117,7 @@ public class SettingsActivity extends PreferenceActivity {
                             String value = ipAddress.getText().toString().trim();
                             if(!value.equals("")) {
                                 Log.d("CLICK", value);
+                                ipAddress.setSummary(value);
                                 editor.putString(PREF_IP,value);
                                 editor.commit();
                             }

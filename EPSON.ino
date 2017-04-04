@@ -1,8 +1,8 @@
 #include <SoftwareSerial.h>
 #include <IRremote.h>
 
-#define DEBUG false
-#define privateKey 1019 
+#define DEBUG true
+#define privateKey 1019
 #define publicKey 3337
 
 #define EPSON 1
@@ -143,8 +143,7 @@ void loop()
                       break;
 
                 case 1:
-                      /*2 indicates AUTHENTICATED*/
-                      requestResponse = "2";
+
                       int encryptedKey[10];
                       int a;
                       int i;
@@ -177,7 +176,11 @@ void loop()
                       {
                           if(strcmp(authenticationKey, RC4key) != 0)
                           {
-                              requestResponse = "8";
+                              requestResponse = "8"; //indicates Authentication faliure
+                          }
+                          else
+                          {
+                              requestResponse = "2"; //inidicates Successfull Authentication
                           }
                       }
                       else
@@ -190,6 +193,7 @@ void loop()
                           initRC4();
                           doKSA();
                           doPGRA();
+                          requestResponse = "2"; //inidicates Successfull Authentication
                       }
 
                       sendHTTPResponse(connectionId,requestResponse);
@@ -197,7 +201,9 @@ void loop()
 
                 case 2:
 
-                      int index = 0, num[10],code[10];
+                      int index;
+                      index = 0;
+                      int num[10],code[10];
                       char encryptedCode[10];
                       unsigned long int decryptedCode;
 
@@ -232,6 +238,20 @@ void loop()
                       Serial.println(decryptedCode);
                       sendDataToDevice(decryptedCode, EPSON);
 
+                      requestResponse = "1";//Successfull Connection
+                      sendHTTPResponse(connectionId,requestResponse);
+                      break;
+
+                /*Inidacates disconnection*/
+                case 9:
+                      Serial.println("Disconnected");
+                      isRC4Initialised = false;
+                      in = 0;
+                      ain = 0;
+                      strcpy(RC4key, "\0");
+                      strcpy(authenticationKey, "\0");
+
+                      requestResponse = "1";
                       sendHTTPResponse(connectionId,requestResponse);
                       break;
 
@@ -284,9 +304,10 @@ String sendDataToDevice(unsigned long int deviceCode, int deviceName)
 
               for (int i = 0; i < 2; i++)
               {
-                  irsend.sendNEC(deviceCode, deviceCode); // Sony TV power code
+                  irsend.sendNEC(deviceCode, 32); // Sony TV power code
                   delay(40);
               }
+              delay(1000);
               response = "1";
               break;
 

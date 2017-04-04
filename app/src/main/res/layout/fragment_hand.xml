@@ -10,7 +10,8 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:orientation="vertical"
-            android:weightSum="1">
+            android:weightSum="1"
+    android:backgroundTint="@color/black_overlay">
 
             <android.support.v4.widget.NestedScrollView
                 android:layout_width="match_parent"

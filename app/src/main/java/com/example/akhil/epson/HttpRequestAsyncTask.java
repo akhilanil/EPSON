@@ -47,6 +47,7 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         InputStream inputStream = null;
+        RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
         this.requestReply = sendRequest(parameterValue, ipAddress, portNumber, requestType);
         return null;
     }
@@ -54,10 +55,7 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
     protected void  onPostExecute(Void avoid) {
 
 
-
         if(this.requestType.equals(RequestMode.INIT)) {
-
-
             if(this.requestReply.equals(ServerResponse.UNREACHABLE_HOST)) {
                 Log.d("STEP","UNREACHABLE_HOST");
                 LoadingActivity.requestStatus = ConnectionStatus.FAIL;
@@ -67,6 +65,17 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
             }
             LoadingActivity.changeOnReply = true;
         }
+        else if(this.requestType.equals(RequestMode.RELOAD)) {
+
+            if(this.requestReply.equals(ServerResponse.UNREACHABLE_HOST)) {
+                RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
+            }
+            else {
+                RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
+            }
+            RemoteActivity.signal = 1;
+
+        }
         else if(this.requestType.equals(RequestMode.INIT_AGAIN)) {
 
             if (this.requestReply.equals(ServerResponse.UNREACHABLE_HOST)) {//reply from ESP
@@ -75,6 +84,7 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
             else {
                 RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
             }
+
             RemoteActivity.signal = 1;
         }
 
@@ -125,6 +135,7 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
           * finish: To disconnect
         * */
 
+
         InputStream inputStream;
         String response;
         int responseCode;
@@ -133,18 +144,23 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
         String link = "";
 
 
-        if(requestType.equals(RequestMode.INIT) || requestType.equals(RequestMode.INIT_AGAIN))
-            link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0);
-        else if(requestType.equals(RequestMode.RC4KEY))
-            link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0)
-                    +"&value="+parameterValue.get(1);
-        else if(requestType.equals(RequestMode.NORMAL))
-            link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0)
-                    +"&value="+parameterValue.get(1);
-        else if(this.requestType.equals(RequestMode.FINISH))
-            link = "http://"+ipAddress+":"+portNumber+"/?"+"mode="+parameterValue.get(0);
-
+        if(requestType.equals(RequestMode.INIT) || requestType.equals(RequestMode.INIT_AGAIN)
+                || requestType.equals(RequestMode.RELOAD)) {
+            link = "http://" + ipAddress + ":" + portNumber + "/?" + "mode=" + parameterValue.get(0);
+        }
+        else if(requestType.equals(RequestMode.RC4KEY)) {
+            link = "http://" + ipAddress + ":" + portNumber + "/?" + "mode=" + parameterValue.get(0)
+                    + "&value=" + parameterValue.get(1);
+        }
+        else if(requestType.equals(RequestMode.NORMAL)) {
+            link = "http://" + ipAddress + ":" + portNumber + "/?" + "mode=" + parameterValue.get(0)
+                    + "&value=" + parameterValue.get(1);
+        }
+        else if(this.requestType.equals(RequestMode.FINISH)) {
+            link = "http://" + ipAddress + ":" + portNumber + "/?" + "mode=" + parameterValue.get(0);
+        }
         try {
+
             URL url = new URL(link);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             HttpURLConnection.setFollowRedirects(false);
@@ -155,20 +171,19 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
 
             inputStream = new BufferedInputStream(conn.getInputStream());
             response = org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8");
-            responseCode = Integer.parseInt(response);
-            Log.d("RESPONSE",response);
-            serverResponse = ParameterFactory.getServerResponse(responseCode);
 
-
-            inputStream.close();
-
+            if(response.length() == 1) {
+                responseCode = Integer.parseInt(response);
+                serverResponse = ParameterFactory.getServerResponse(responseCode);
+                inputStream.close();
+                Log.d("Steps", response);
+            }
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
+        Log.d("Link",link);
         return serverResponse;
     }
 }

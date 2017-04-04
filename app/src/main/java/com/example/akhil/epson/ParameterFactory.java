@@ -9,10 +9,7 @@ public class ParameterFactory {
 
     public static String getMode(RequestMode mode) {
 
-
-
         switch(mode) {
-
 
             case INIT:
                 /*0 indicates init request*/
@@ -29,21 +26,12 @@ public class ParameterFactory {
             default:
                 return "ERROR";
 
-
         }
-
-
-
-
-
     }
-
 
     public static ServerResponse getServerResponse(int serverResponse) {
 
-
         switch (serverResponse) {
-
 
             case 0:
                 /*WHEN HOST AT GIVEN IP ADDRESS AND PORT IS NOT AVAILABLE */
@@ -63,11 +51,5 @@ public class ParameterFactory {
             default:
                 return  ServerResponse.UNREACHABLE_HOST;
         }
-
-
-
-
     }
-
-
 }
