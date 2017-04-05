@@ -1,13 +1,19 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="#262626"
     tools:context="com.example.akhil.epson.LoadingActivity">
 
+
+
+        android:layout_centerInParent="true" />
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
+
+
     <TextView
         android:id="@+id/fullscreen_content"
         android:layout_width="match_parent"
@@ -18,12 +24,15 @@
         android:textSize="50sp"
         android:textStyle="bold" />
 
+
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:fitsSystemWindows="true"
+        android:weightSum="1.0">
 
         <LinearLayout
             android:id="@+id/fullscreen_content_controls"
@@ -33,9 +42,34 @@
             android:layout_gravity="bottom|center_horizontal"
             android:background="@color/black_overlay"
             android:orientation="horizontal"
-            tools:ignore="UselessParent">
+            tools:ignore="UselessParent"
+            android:layout_weight="0.4">
 
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@android:color/background_light"
+                android:id="@+id/imageView"
+                android:layout_weight="1" />
         </LinearLayout>
+        <com.example.akhil.epson.GifImageView
+            android:id="@+id/loading_gif"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:keepScreenOn="true"
+            android:scaleType = "fitXY"
+            android:layout_weight="0.3"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="391dp"
+            app:srcCompat="@mipmap/epson_logo"
+            android:id="@+id/imageView2"
+            android:layout_weight="0.3"/>
+
     </FrameLayout>
 
 </FrameLayout>

@@ -1,14 +1,11 @@
 package com.example.akhil.epson;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,12 +14,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -117,7 +108,7 @@ public class LoadingActivity extends AppCompatActivity {
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
-        mContentView = findViewById(R.id.fullscreen_content);
+        mContentView = findViewById(R.id.loading_gif);
 
 
         // Set up the user interaction to manually show or hide the system UI.
@@ -139,11 +130,23 @@ public class LoadingActivity extends AppCompatActivity {
 
         String ipAddress = sharedPreferences.getString(PREF_IP,"NULL");
         String portNumber = sharedPreferences.getString(PREF_PORT,"NULL");
+
         RequestMode requestType = RequestMode.INIT;
+
+        GifImageView.view = findViewById(android.R.id.content);
+        GifImageView gifImageView = (GifImageView) findViewById(R.id.loading_gif);
+
+       // gifImageView.setGifImageResource(R.mipmap.loading_gif);
+
+        Toast.makeText(LoadingActivity.this,String.valueOf(gifImageView.getMovieDuration()),Toast.LENGTH_SHORT ).show();
+
 
         new RequestHandler(findViewById(android.R.id.content).getContext(), parameterValue, ipAddress,
                 portNumber, requestType);
     }
+
+
+
 
     private class RequestHandler implements Runnable {
 

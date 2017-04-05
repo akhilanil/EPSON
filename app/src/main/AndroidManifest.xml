@@ -11,6 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+
             android:name=".MainActivity"
             android:theme="@style/mainnotitle">
             <intent-filter>
@@ -25,6 +26,7 @@
             android:label="@string/title_activity_remote"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".LoadingActivity"
             android:label="@string/title_activity_loading"
             android:theme="@style/FullscreenTheme" />
