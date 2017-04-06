@@ -21,6 +21,15 @@
 
     <string name="title_activity_test">TestActivity</string>
 
+    <string name="title_acticity_connection">ConnectionActivity</string>
+
+    <!--TAGS for CONNECTION DETAILS ACTIVITY-->
+
+    <string name="iptextview">IP ADDRESS</string>
+    <string name="porttextview">PORT</string>
+    <string name="initialconnect">CONNECT</string>
+
+
 
     <!--Tags for buttons in Remote-->
 

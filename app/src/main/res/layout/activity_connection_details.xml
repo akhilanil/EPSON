@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_connection_details"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    android:weightSum="1.0"
+    tools:context="com.example.akhil.epson.ConnectionDetailsActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:layout_weight="0.4"
+        android:weightSum="0.9"
+        android:layout_marginBottom="10dp">
+
+        <!--Holds the IP ADDRESS-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.3"
+            android:orientation="horizontal"
+            android:weightSum="1.0">
+
+            <TextView
+                android:id="@+id/iptextview"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="0.3"
+                android:text="@string/iptextview"
+                android:gravity="center"/>
+            <EditText
+                android:id="@+id/ipedittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:inputType="number|numberDecimal"
+                android:digits="0123456789."
+                android:maxLines="1"
+                android:background="@drawable/border"
+                android:layout_gravity="center"
+                android:textAlignment="center"/>
+
+        </LinearLayout>
+
+        <!--Holds the PORT NUMBER-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.3"
+            android:orientation="horizontal"
+            android:weightSum="1.0">
+
+            <TextView
+                android:id="@+id/porttextview"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="0.3"
+                android:text="@string/porttextview"
+                android:gravity="center"/>
+            <EditText
+                android:id="@+id/portedittext"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"
+                android:inputType="number"
+                android:digits="0123456789"
+                android:maxLines="1"
+                android:layout_gravity="center"
+                android:background="@drawable/border"
+                android:textAlignment="center"/>
+        </LinearLayout>
+
+        <!--Holds the BACK BUTTON-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.3"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/initialconnect"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/initialconnect"/>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.6"/>
+
+
+
+
+</LinearLayout>

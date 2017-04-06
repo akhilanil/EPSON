@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
@@ -58,12 +59,12 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
         if(this.requestType.equals(RequestMode.INIT)) {
             if(this.requestReply.equals(ServerResponse.UNREACHABLE_HOST)) {
                 Log.d("STEP","UNREACHABLE_HOST");
-                LoadingActivity.requestStatus = ConnectionStatus.FAIL;
+                ConnectionActivity.requestStatus = ConnectionStatus.FAIL;
             }
             else {
-                LoadingActivity.requestStatus = ConnectionStatus.SUCCESS;
+                ConnectionActivity.requestStatus = ConnectionStatus.SUCCESS;
             }
-            LoadingActivity.changeOnReply = true;
+            ConnectionActivity.changeOnReply = true;
         }
         else if(this.requestType.equals(RequestMode.RELOAD)) {
 

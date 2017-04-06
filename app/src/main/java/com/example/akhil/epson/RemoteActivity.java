@@ -389,10 +389,11 @@ public class RemoteActivity extends AppCompatActivity {
                     new InitRC4Encryption(requestHandler);
 
                 }
-                initView(rootView);
+                initRemoteView(rootView);
             }
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("2")) {
                 rootView = inflater.inflate(R.layout.fragment_voice, container, false);
+                initVoiceView(rootView);
             }
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("3"))
                 rootView = inflater.inflate(R.layout.fragment_help, container, false);
@@ -404,9 +405,15 @@ public class RemoteActivity extends AppCompatActivity {
 
 
 
+        /*Initialises Listener for voice button*/
+        public void initVoiceView(View rootView) {
+            
+        }
 
 
-        public void initView(View rootView) {
+
+        /*Initialises listeners for all button in the remote*/
+        public void initRemoteView(View rootView) {
 
             final View view = rootView;
 

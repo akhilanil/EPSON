@@ -22,8 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences.Editor editor;
     SharedPreferences sharedPreferences;
-    Button connect;
-    EditText ip, port;
+    Button next;
 
 
     @Override
@@ -35,42 +34,31 @@ public class MainActivity extends AppCompatActivity {
         editor = sharedPreferences.edit();
 
 
-        ip = (EditText)findViewById(R.id.ip);
-        port = (EditText)findViewById(R.id.port);
-
-
         if(!sharedPreferences.getString(PREF_IP,"").equals("")){
-
-            Intent loading = new Intent(MainActivity.this, LoadingActivity.class);
+            Intent loading = new Intent(MainActivity.this, ConnectionActivity.class);
             startActivity(loading);
             finish();
-
         }
+        else {
 
-        connect = (Button) findViewById(R.id.connect);
+            next = (Button) findViewById(R.id.to_next);
 
-        connect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            next.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-                String ipAddress =  ip.getText().toString().trim();
-                String portNumber = port.getText().toString().trim();
-
-                Log.d("ONclick",ipAddress + portNumber);
-
-                if(!ipAddress.equals("") && !portNumber.equals("")) {
-                    editor.putString(PREF_IP, ipAddress);
-                    editor.putString(PREF_PORT, portNumber);
-                    editor.commit();
-                    Log.d("ONclick","in");
-
-                    Intent loading = new Intent(MainActivity.this, LoadingActivity.class);
+                    Intent loading = new Intent(MainActivity.this, ConnectionDetailsActivity.class);
                     startActivity(loading);
                     finish();
 
                 }
-            }
-        });
+            });
+
+
+
+        }
+
+
 
 
 
