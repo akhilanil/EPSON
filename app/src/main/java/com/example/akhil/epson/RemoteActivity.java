@@ -1,12 +1,16 @@
 package com.example.akhil.epson;
 
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -40,7 +44,7 @@ import com.example.akhil.decode.RSAEncrypt;
 import com.example.akhil.decode.RemoteCode;
 
 import java.util.ArrayList;
-
+import java.util.Locale;
 
 
 public class RemoteActivity extends AppCompatActivity {
@@ -56,9 +60,10 @@ public class RemoteActivity extends AppCompatActivity {
 
     public static String finalipAddress,finalportNumber;
 
+    public static TextToSpeech textToSpeech;
 
     private static boolean isBackButtonPressed = false;
-
+    public static final int REQ_CODE_SPEECH_INPUT = 100;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -127,12 +132,26 @@ public class RemoteActivity extends AppCompatActivity {
 
         sharedPreferences =
                 getSharedPreferences("HTTP_HELPER_PREFS", Context.MODE_PRIVATE);
-        setDefaults();
+        //setDefaults();
         Bundle extras = getIntent().getExtras();
         if(extras != null)
             connectionStatus = (ConnectionStatus) extras.get("status");
 
+        textToSpeech = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    textToSpeech.setLanguage(Locale.UK);
+                }
+            }
+        });
+
+
+        setDefaults();
         startService(new Intent(this, NetworkDisconnect.class));
+
+
+
 
     }
 
@@ -141,6 +160,8 @@ public class RemoteActivity extends AppCompatActivity {
     protected void onDestroy() {
         Log.d("DONE","Remote");
         //disconnectRemote();
+        textToSpeech.stop();
+        textToSpeech.shutdown();
         super.onDestroy();
     }
 
@@ -185,10 +206,14 @@ public class RemoteActivity extends AppCompatActivity {
 
 
         Log.d("Steps","DEFAULT" );
-        RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
+        //RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
         RemoteActivity.signal = 0;
         RemoteActivity.change = false;
-        RemoteActivity.isRC4Initialized = false;
+        //RemoteActivity.isRC4Initialized = false;
+
+        RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
+        RemoteActivity.isRC4Initialized = true;
+
     }
 
     @Override
@@ -407,7 +432,56 @@ public class RemoteActivity extends AppCompatActivity {
 
         /*Initialises Listener for voice button*/
         public void initVoiceView(View rootView) {
-            
+
+            ImageButton btnSpeak = (ImageButton) rootView.findViewById(R.id.voice);
+            btnSpeak.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    promptSpeechInput();
+                }
+            });
+
+        }
+
+
+        private void promptSpeechInput() {
+
+
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                    getString(R.string.speech_prompt));
+            try {
+                startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+            } catch (ActivityNotFoundException a) {
+                Toast.makeText(this.getContext(), "SPEECH NOT SUPORTED", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+            super.onActivityResult(requestCode, resultCode, data);
+
+            switch (requestCode) {
+                case REQ_CODE_SPEECH_INPUT:
+                    if(resultCode == RESULT_OK &&  data != null) {
+                        ArrayList<String> result = data
+                                .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                        Log.d("SPEECH", result.get(0));
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            textToSpeech.speak(ResponseVoice.getResponse(result.get(0)),
+                                    TextToSpeech.QUEUE_FLUSH, null, null);
+                        }
+                        else {
+                            textToSpeech.speak(ResponseVoice.getResponse(result.get(0)),
+                                    TextToSpeech.QUEUE_FLUSH, null);
+                        }
+                    }
+            }
         }
 
 
@@ -415,7 +489,6 @@ public class RemoteActivity extends AppCompatActivity {
         /*Initialises listeners for all button in the remote*/
         public void initRemoteView(View rootView) {
 
-            final View view = rootView;
 
             ((ImageButton) rootView.findViewById(R.id.power)).setOnClickListener(new ButtonClick());
             ((ImageButton) rootView.findViewById(R.id.up)).setOnClickListener(new ButtonClick());
