@@ -11,6 +11,8 @@ public class ResponseWrapper {
     private RequestType requestType;
     private String code;
 
+    private StatusIdentifier deviceName, deviceStatus;
+
     public void setStatus(ResponseStatus responseStatus, String responseString,
                           RequestType requestType, String code) {
 
@@ -18,6 +20,11 @@ public class ResponseWrapper {
         this.responseString = responseString;
         this.requestType = requestType;
         this.code = code;
+    }
+
+    void setStatusIdenifier (StatusIdentifier deviceName, StatusIdentifier deviceStatus) {
+        this.deviceName = deviceName;
+        this.deviceStatus = deviceStatus;
     }
 
     public ResponseStatus getResponseStatus() {
@@ -35,6 +42,10 @@ public class ResponseWrapper {
     public String getCode() {
         return code;
     }
+
+    StatusIdentifier getDeviceIdentifier() {return deviceName;}
+
+    StatusIdentifier getDeviceStatus() {return deviceStatus;}
 
 
 }
