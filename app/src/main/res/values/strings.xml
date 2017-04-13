@@ -164,6 +164,12 @@
     <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
     <string name="tap_on_mic">Tap on mic to speak</string>
 
+    <!--String tags for voice response-->
+    <string name="waiting">Please Wait</string>
+    <string name="successPrjector">Prjector On</string>
+    <string name="failProjector">Failed to Switch On Projector </string>
+    <string name="successLight">Lights On</string>
+    <string name="failLight">Failed to Switch Light </string>
 
 
 </resources>

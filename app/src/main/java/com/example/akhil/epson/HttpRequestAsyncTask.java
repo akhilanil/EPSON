@@ -110,10 +110,23 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
             }
             RemoteActivity.signal = 1;
         }
+        else if(this.requestType.equals(RequestMode.LIGHT)) {
+
+            if(this.requestReply.equals(ServerResponse.FAIL)) {
+                RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
+            }
+            else {
+                RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
+            }
+            RemoteActivity.signal = 1;
+
+        }
+
         else if(this.requestType.equals(RequestMode.FINISH)) {
 
             RemoteActivity.signal = 1;
         }
+
 
     }
 
@@ -156,6 +169,11 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
         else if(requestType.equals(RequestMode.NORMAL)) {
             link = "http://" + ipAddress + ":" + portNumber + "/?" + "mode=" + parameterValue.get(0)
                     + "&value=" + parameterValue.get(1);
+        }
+        else if(this.requestType.equals(RequestMode.LIGHT)) {
+            link = "http://" + ipAddress + ":" + portNumber + "/?" + "mode=" + parameterValue.get(0)
+                    + "&value=" + parameterValue.get(1);
+            Log.d("LINK: ", link);
         }
         else if(this.requestType.equals(RequestMode.FINISH)) {
             link = "http://" + ipAddress + ":" + portNumber + "/?" + "mode=" + parameterValue.get(0);

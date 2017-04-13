@@ -12,7 +12,8 @@ public enum RequestMode {
     INIT_AGAIN,
     NORMAL,
     RELOAD,
-    FINISH
+    FINISH,
+    LIGHT
 
 
 }

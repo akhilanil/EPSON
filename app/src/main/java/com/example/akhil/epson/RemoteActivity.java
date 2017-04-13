@@ -34,17 +34,25 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.example.akhil.decode.EncryptCode;
 import com.example.akhil.decode.EncryptionKeys;
 import com.example.akhil.decode.InitRC4;
 import com.example.akhil.decode.RSAEncrypt;
 import com.example.akhil.decode.RemoteCode;
+import com.example.akhil.voice.RequestType;
+import com.example.akhil.voice.ResponseStatus;
+import com.example.akhil.voice.ResponseVoice;
+import com.example.akhil.voice.ResponseWrapper;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Objects;
 
 
 public class RemoteActivity extends AppCompatActivity {
@@ -55,7 +63,7 @@ public class RemoteActivity extends AppCompatActivity {
 
     public static EncryptionKeys encryptionKeys;
     public static InitRC4 initRC4;
-    public  static RemoteCode remoteCode;
+    public static RemoteCode remoteCode;
     public static EncryptCode encryptCode;
 
     public static String finalipAddress,finalportNumber;
@@ -64,6 +72,9 @@ public class RemoteActivity extends AppCompatActivity {
 
     private static boolean isBackButtonPressed = false;
     public static final int REQ_CODE_SPEECH_INPUT = 100;
+
+    public static ImageView voiceResponseGif;
+    public static TextView voiceResponseText;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -418,6 +429,9 @@ public class RemoteActivity extends AppCompatActivity {
             }
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("2")) {
                 rootView = inflater.inflate(R.layout.fragment_voice, container, false);
+
+                voiceResponseGif = (ImageView) rootView.findViewById(R.id.voiceResponseGif);
+                voiceResponseText = (TextView) rootView.findViewById(R.id.voiceResponseText);
                 initVoiceView(rootView);
             }
             else if(String.valueOf(getArguments().getInt(ARG_SECTION_NUMBER)).equals("3"))
@@ -468,22 +482,167 @@ public class RemoteActivity extends AppCompatActivity {
 
             switch (requestCode) {
                 case REQ_CODE_SPEECH_INPUT:
+
+                    final String responseSpeech;
+                    String code;
+                    ResponseWrapper responseWrapper;
+                    ResponseStatus responseStatus;
+                    RequestType responseRequestType;
+
                     if(resultCode == RESULT_OK &&  data != null) {
                         ArrayList<String> result = data
                                 .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                         Log.d("SPEECH", result.get(0));
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            textToSpeech.speak(ResponseVoice.getResponse(result.get(0)),
-                                    TextToSpeech.QUEUE_FLUSH, null, null);
+
+                        responseWrapper = ResponseVoice.getResponse(result.get(0));
+                        responseSpeech = responseWrapper.getResponseString();
+                        responseStatus = responseWrapper.getResponseStatus();
+                        responseRequestType = responseWrapper.getRequestType();
+                        code = responseWrapper.getCode();
+
+                        if(responseStatus.equals(ResponseStatus.RESPONSE_SUCCESS)) {
+
+                            if(responseRequestType.equals(RequestType.PROJECTOR_STATE)) {
+
+                                code = getString(R.string.powerButton);
+                                code = encryptCode.getCode(code);
+                                ArrayList<String> parameterValue = new ArrayList<String>();
+                                RequestMode requestType = RequestMode.NORMAL;
+                                RemoteActivity.connectionStatus = ConnectionStatus.REMOTEREQUEST;
+                                RemoteActivity.signal = 0;
+
+
+                                if(!code.equals("XX")) {
+
+                                    Toast.makeText(getContext(), code, Toast.LENGTH_SHORT).show();
+                                    parameterValue.add(0, ParameterFactory.getMode(requestType)); // request mode
+                                    parameterValue.add(1, code);
+                                    new HttpRequestAsyncTask(parameterValue, finalipAddress, finalportNumber,
+                                            requestType).execute();
+
+                                    GlideDrawableImageViewTarget logoImageViewTarget =
+                                            new GlideDrawableImageViewTarget(voiceResponseGif);
+                                    Glide.with(this)
+                                            .load(R.raw.waiting)
+                                            .into(logoImageViewTarget);
+                                    voiceResponseText.setText(getString(R.string.waiting));
+
+
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            speakResult("Please Wait");
+
+                                            while (RemoteActivity.signal == 0) {
+                                                try {
+                                                    Thread.sleep(1000);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                            speakResult(responseSpeech);
+                                        }
+                                    }).start();
+
+                                    if(connectionStatus.equals(ConnectionStatus.SUCCESS)) {
+
+                                        logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
+                                        Glide.with(this)
+                                                .load(R.raw.waiting)
+                                                .into(logoImageViewTarget);
+                                        voiceResponseText.setText(getString(R.string.successPrjector));
+
+                                    }
+                                    else if(connectionStatus.equals(ConnectionStatus.FAIL)){
+                                        logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
+                                        Glide.with(this)
+                                                .load(R.raw.waiting)
+                                                .into(logoImageViewTarget);
+                                        voiceResponseText.setText(getString(R.string.failProjector));
+
+                                    }
+
+
+                                }
+                                else {
+                                    speakResult("Sorry This Service is Unavailable");
+                                    Toast.makeText(getContext(), "Code not Found", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            else if(responseRequestType.equals(RequestType.LIGHT)) {
+
+                                RequestMode requestType = RequestMode.LIGHT;
+                                RemoteActivity.connectionStatus = ConnectionStatus.REMOTEREQUEST;
+                                RemoteActivity.signal = 0;
+                                code = encryptCode.getCode(code);
+
+                                ArrayList<String> parameterValue = new ArrayList<String>();
+                                parameterValue.add(0, ParameterFactory.getMode(requestType));
+                                parameterValue.add(1, code);
+
+                                new HttpRequestAsyncTask(parameterValue, finalipAddress, finalportNumber,
+                                        requestType).execute();
+                                GlideDrawableImageViewTarget logoImageViewTarget =
+                                        new GlideDrawableImageViewTarget(voiceResponseGif);
+                                Glide.with(this)
+                                        .load(R.raw.waiting)
+                                        .into(logoImageViewTarget);
+                                voiceResponseText.setText(getString(R.string.waiting));
+
+
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        speakResult("Please Wait");
+
+                                        while (RemoteActivity.signal == 0) {
+                                            try {
+                                                Thread.sleep(1000);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                        speakResult(responseSpeech);
+                                    }
+                                }).start();
+
+                                if(connectionStatus.equals(ConnectionStatus.SUCCESS)) {
+
+                                    logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
+                                    Glide.with(this)
+                                            .load(R.raw.waiting)
+                                            .into(logoImageViewTarget);
+                                    voiceResponseText.setText(getString(R.string.successLight));
+
+                                }
+                                else if(connectionStatus.equals(ConnectionStatus.FAIL)){
+                                    logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
+                                    Glide.with(this)
+                                            .load(R.raw.waiting)
+                                            .into(logoImageViewTarget);
+                                    voiceResponseText.setText(getString(R.string.failLight));
+
+                                }
+                            }
                         }
                         else {
-                            textToSpeech.speak(ResponseVoice.getResponse(result.get(0)),
-                                    TextToSpeech.QUEUE_FLUSH, null);
+                            speakResult(responseSpeech);
                         }
                     }
+                    break;
             }
         }
 
+        public void speakResult(String responseSpeech) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                textToSpeech.speak(responseSpeech,
+                        TextToSpeech.QUEUE_FLUSH, null, null);
+            }
+            else {
+                textToSpeech.speak(responseSpeech,
+                        TextToSpeech.QUEUE_FLUSH, null);
+            }
+        }
 
 
         /*Initialises listeners for all button in the remote*/

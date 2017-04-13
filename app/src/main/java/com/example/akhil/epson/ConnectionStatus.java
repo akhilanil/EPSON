@@ -11,7 +11,7 @@ public enum ConnectionStatus {
     SUCCESS,
     AUTH_SUCCESS,
     REMOTEREQUEST,
-    AUTH_FAIL
+    AUTH_FAIL,
 
 
 }

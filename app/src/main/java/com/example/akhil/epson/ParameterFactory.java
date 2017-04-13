@@ -20,6 +20,9 @@ public class ParameterFactory {
             case NORMAL:
                 /*2 indicates Normal*/
                 return "2";
+            case LIGHT:
+                /*3 indicates LIGHT*/
+                return "3";
             case FINISH:
                 /*9 indicates Finish*/
                 return "9";
