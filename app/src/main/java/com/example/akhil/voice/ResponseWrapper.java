@@ -22,7 +22,7 @@ public class ResponseWrapper {
         this.code = code;
     }
 
-    void setStatusIdenifier (StatusIdentifier deviceName, StatusIdentifier deviceStatus) {
+    void setStatusIdentifier (StatusIdentifier deviceName, StatusIdentifier deviceStatus) {
         this.deviceName = deviceName;
         this.deviceStatus = deviceStatus;
     }
@@ -39,9 +39,7 @@ public class ResponseWrapper {
         return requestType;
     }
 
-    public String getCode() {
-        return code;
-    }
+    public String getCode() { return code; }
 
     StatusIdentifier getDeviceIdentifier() {return deviceName;}
 

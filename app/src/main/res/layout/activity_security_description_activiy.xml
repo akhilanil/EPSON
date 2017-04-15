@@ -27,14 +27,14 @@
         android:textColor="@color/foreground"
         android:id="@+id/titleDescription"
         android:layout_width="match_parent"
-        android:text="@string/about_MainActivity"
+        android:text="@string/about_SecurityDescriptionActiviy"
         android:layout_height="0dp"
         android:layout_weight="0.45"
         android:gravity="center|left"
         android:textSize="25dp"/>
 
     <Button
-        android:id="@+id/to_next_security"
+        android:id="@+id/to_next_connection"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.1"

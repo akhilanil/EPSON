@@ -20,13 +20,11 @@ public class RemoteCode {
 
     AssetManager assetManager;
     JSONObject epson;
-    String test = "a";
 
     public RemoteCode(AssetManager assetManager){
 
         Log.d("Constructor","REMOTECODE");
         this.assetManager = assetManager;
-        test = "b";
         initialiseCode();
 
 
@@ -36,9 +34,6 @@ public class RemoteCode {
         String buttonCode = "";
 
         try {
-
-            //if(test.equals("a"))
-
 
             buttonCode = epson.getString(buttonPressed);
             Log.d("Code",String.valueOf(buttonCode));

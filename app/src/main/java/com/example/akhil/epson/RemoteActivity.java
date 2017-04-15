@@ -503,9 +503,8 @@ public class RemoteActivity extends AppCompatActivity {
                         if(responseStatus.equals(ResponseStatus.RESPONSE_SUCCESS)) {
 
                             if(responseRequestType.equals(RequestType.PROJECTOR_STATE)) {
-
                                 code = getString(R.string.powerButton);
-                                code = encryptCode.getCode(code);
+                                code = encryptCode.getCode(code, DeviceList.PROJECTOR);
                                 ArrayList<String> parameterValue = new ArrayList<String>();
                                 RequestMode requestType = RequestMode.NORMAL;
                                 RemoteActivity.connectionStatus = ConnectionStatus.REMOTEREQUEST;
@@ -574,7 +573,7 @@ public class RemoteActivity extends AppCompatActivity {
                                 RequestMode requestType = RequestMode.LIGHT;
                                 RemoteActivity.connectionStatus = ConnectionStatus.REMOTEREQUEST;
                                 RemoteActivity.signal = 0;
-                                code = encryptCode.getCode(code);
+                                code = encryptCode.getCode(code, DeviceList.LIGHT);
 
                                 ArrayList<String> parameterValue = new ArrayList<String>();
                                 parameterValue.add(0, ParameterFactory.getMode(requestType));
@@ -707,7 +706,7 @@ public class RemoteActivity extends AppCompatActivity {
                 try {
                     requestHandler.sendInitRequest();
                 }catch(InterruptedException e) {
-                    Log.d("ERROR",e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }
@@ -729,7 +728,7 @@ public class RemoteActivity extends AppCompatActivity {
 
                     requestHandler.sendInitEncryption();
                 }catch(InterruptedException e) {
-                    Log.d("ERROR",e.getMessage());
+                    e.printStackTrace();
                 }
 
             }
@@ -786,50 +785,16 @@ public class RemoteActivity extends AppCompatActivity {
 
             public synchronized void sendInitRequest () throws InterruptedException {
 
-
                 new HttpRequestAsyncTask (
                         parameterValue, ipAddress, portNumber,
                         requestType).execute();
 
                  RemoteActivity.signal = 0;
-                /*final Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("CHECK","HEY");
-                        final ProgressDialog progressCircle = new ProgressDialog(context);
-
-                        progressCircle.setCancelable(false);
-                        progressCircle.setMessage("Please Wait...");
-                        progressCircle.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                        progressCircle.show();
-
-                        while(RemoteActivity.signal == 0) {
-                            try {
-                                Thread.sleep(1000);
-                                Log.d("CHECK",String.valueOf(RemoteActivity.signal));
-                            }catch (Exception e){e.printStackTrace();}
-                        }
-                        try {
-                            Thread.sleep(1000);
-                            Log.d("CHECK",String.valueOf(RemoteActivity.signal));
-                        }catch (Exception e){e.printStackTrace();}
-
-                        progressCircle.dismiss();
-                    }
-                });*/
 
                 while(RemoteActivity.signal == 0){
-
                     try{Thread.sleep(1000);}catch (Exception e){e.printStackTrace();}
-
                 }
-
-
                 notifyAll();
-
-
-
             }
 
             public synchronized void  sendInitEncryption() throws  InterruptedException {
@@ -837,7 +802,6 @@ public class RemoteActivity extends AppCompatActivity {
                 while(RemoteActivity.signal == 0) {
                     wait();
                 }
-                Log.d("Status","Initializing");
 
                 if(RemoteActivity.connectionStatus.equals(ConnectionStatus.SUCCESS)) {
 
@@ -887,7 +851,6 @@ public class RemoteActivity extends AppCompatActivity {
                                         try {
                                             Thread.sleep(1000);
                                         } catch (Exception e) {
-                                            Log.d("ERROR1", e.getMessage());
                                             e.printStackTrace();
                                         }
                                     }
@@ -977,7 +940,7 @@ public class RemoteActivity extends AppCompatActivity {
 
             Log.d("RC4TEXT",code);
 
-            code = encryptCode.getCode(code);
+            code = encryptCode.getCode(code, DeviceList.PROJECTOR);
 
             Log.d("RC4CIPHER",code);
 

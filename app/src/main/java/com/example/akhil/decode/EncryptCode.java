@@ -2,6 +2,8 @@ package com.example.akhil.decode;
 
 import android.util.Log;
 
+import com.example.akhil.epson.DeviceList;
+
 /**
  * Created by akhil on 11/3/17.
  */
@@ -20,11 +22,16 @@ public class EncryptCode {
         rc4Encryption = new RC4Encryption(this.initRC4);
     }
 
-    public String getCode(String buttonPressed) {
+    public String getCode(String buttonPressed, DeviceList deviceList) {
         String encryptedCode = "";
         String buttonCode = "";
 
-        buttonCode = remoteCode.getRemoteCode(buttonPressed);
+        if(deviceList.equals(DeviceList.PROJECTOR)) {
+            buttonCode = remoteCode.getRemoteCode(buttonPressed);
+        }
+        else if (deviceList.equals(DeviceList.LIGHT)){ /*NO IR  CODE NEEDED TO SWITCH ON THE LIGHT*/
+            buttonCode = buttonPressed;
+        }
 
         Log.d("CODE",buttonCode);
 
@@ -32,7 +39,6 @@ public class EncryptCode {
             encryptedCode = rc4Encryption.encryptCode(buttonCode);
         else
             encryptedCode = buttonCode;
-
 
         return  encryptedCode;
     }

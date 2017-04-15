@@ -9,4 +9,9 @@
     <color name="white">#ffffff</color>
     <color name="bg_gradient_start">#31244e</color>
     <color name="bg_gradient_end">#6b394c</color>
+
+    <!--Color for MainActivity-->
+    <color name="background">#9466dd</color>
+    <color name="foreground">#ffecdb</color>
+
 </resources>

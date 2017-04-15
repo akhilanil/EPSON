@@ -41,13 +41,13 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
 
-            next = (Button) findViewById(R.id.to_next);
+            next = (Button) findViewById(R.id.to_next_security);
 
             next.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
-                    Intent loading = new Intent(MainActivity.this, ConnectionDetailsActivity.class);
+                    Intent loading = new Intent(MainActivity.this, SecurityDescriptionActiviy.class);
                     startActivity(loading);
                     finish();
 

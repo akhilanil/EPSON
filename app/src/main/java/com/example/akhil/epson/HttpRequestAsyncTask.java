@@ -158,6 +158,7 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
         String link = "";
 
 
+
         if(requestType.equals(RequestMode.INIT) || requestType.equals(RequestMode.INIT_AGAIN)
                 || requestType.equals(RequestMode.RELOAD)) {
             link = "http://" + ipAddress + ":" + portNumber + "/?" + "mode=" + parameterValue.get(0);

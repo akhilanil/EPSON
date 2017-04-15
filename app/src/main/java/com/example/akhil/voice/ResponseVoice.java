@@ -39,7 +39,7 @@ public class ResponseVoice{
                     response = "affirmative, turning lights on ";
                     responseStatus = ResponseStatus.RESPONSE_SUCCESS;
                     requestType = RequestType.LIGHT;
-                    code = "";
+                    code = "lights"+"1"; /*1 indicates light is to be turned ON*/
                     changeLightSatus();
                 } else {
                     response = "Lights Already On";
@@ -52,7 +52,7 @@ public class ResponseVoice{
                     response = "affirmative, turning lights off ";
                     responseStatus = ResponseStatus.RESPONSE_SUCCESS;
                     requestType = RequestType.LIGHT;
-                    code = "";
+                    code = "lights"+"0";/*0 indicates light is to be turned off*/
                     changeLightSatus();
                 }
                 else{

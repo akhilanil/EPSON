@@ -9,6 +9,8 @@ public class ParameterFactory {
 
     public static String getMode(RequestMode mode) {
 
+
+        /*5 is reserved for ESP to ESP communication*/
         switch(mode) {
 
             case INIT:
