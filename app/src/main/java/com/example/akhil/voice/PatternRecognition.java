@@ -68,10 +68,10 @@ public class PatternRecognition {
         }
 
         if(!devicematch || !statusmatch) {
-            responseWrapper.setStatusIdenifier(deviceIdentifier, deviceStatus);
+            responseWrapper.setStatusIdentifier(deviceIdentifier, deviceStatus);
         }
         else {
-            responseWrapper.setStatusIdenifier(deviceIdentifier, deviceStatus);
+            responseWrapper.setStatusIdentifier(deviceIdentifier, deviceStatus);
         }
         return responseWrapper;
     }
@@ -83,8 +83,8 @@ public class PatternRecognition {
         patternDevice.add(1, "projector");
 
         patternStatus = new ArrayList<String>();
-        patternStatus.add(0, "ON");
-        patternStatus.add(1, "OFF");
+        patternStatus.add(0, "on");
+        patternStatus.add(1, "off");
     }
 
     private StatusIdentifier getDeviceIdentifier(int searchValue) {

@@ -179,7 +179,7 @@
 
     <!--String tags for SecurityDescriptionActiviy-->
     <string name="about_SecurityDescriptionActiviy">
-        A login key keeps you protected from intruders
+        Login key keeps you protected from intruders
         who has the same app. Keep it secret..!!
     </string>
 

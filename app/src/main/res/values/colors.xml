@@ -11,7 +11,7 @@
     <color name="bg_gradient_end">#6b394c</color>
 
     <!--Color for MainActivity-->
-    <color name="background">#9466dd</color>
+    <color name="background">#baacd0</color>
     <color name="foreground">#ffecdb</color>
 
 </resources>

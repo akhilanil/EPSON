@@ -40,6 +40,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.bumptech.glide.signature.StringSignature;
 import com.example.akhil.decode.EncryptCode;
 import com.example.akhil.decode.EncryptionKeys;
 import com.example.akhil.decode.InitRC4;
@@ -143,7 +144,10 @@ public class RemoteActivity extends AppCompatActivity {
 
         sharedPreferences =
                 getSharedPreferences("HTTP_HELPER_PREFS", Context.MODE_PRIVATE);
-        //setDefaults();
+
+        //set default values
+        setDefaults();
+
         Bundle extras = getIntent().getExtras();
         if(extras != null)
             connectionStatus = (ConnectionStatus) extras.get("status");
@@ -158,7 +162,7 @@ public class RemoteActivity extends AppCompatActivity {
         });
 
 
-        setDefaults();
+
         startService(new Intent(this, NetworkDisconnect.class));
 
 
@@ -217,13 +221,13 @@ public class RemoteActivity extends AppCompatActivity {
 
 
         Log.d("Steps","DEFAULT" );
-        //RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
+        RemoteActivity.connectionStatus = ConnectionStatus.FAIL;
         RemoteActivity.signal = 0;
         RemoteActivity.change = false;
-        //RemoteActivity.isRC4Initialized = false;
+        RemoteActivity.isRC4Initialized = false;
 
-        RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
-        RemoteActivity.isRC4Initialized = true;
+        //RemoteActivity.connectionStatus = ConnectionStatus.SUCCESS;
+        //RemoteActivity.isRC4Initialized = true;
 
     }
 
@@ -519,10 +523,12 @@ public class RemoteActivity extends AppCompatActivity {
                                     new HttpRequestAsyncTask(parameterValue, finalipAddress, finalportNumber,
                                             requestType).execute();
 
-                                    GlideDrawableImageViewTarget logoImageViewTarget =
+                                    final GlideDrawableImageViewTarget logoImageViewTarget =
                                             new GlideDrawableImageViewTarget(voiceResponseGif);
+
                                     Glide.with(this)
                                             .load(R.raw.waiting)
+                                            .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
                                             .into(logoImageViewTarget);
                                     voiceResponseText.setText(getString(R.string.waiting));
 
@@ -540,26 +546,49 @@ public class RemoteActivity extends AppCompatActivity {
                                                 }
                                             }
                                             speakResult(responseSpeech);
+                                            if(connectionStatus.equals(ConnectionStatus.SUCCESS)) {
+
+                                                logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
+
+                                                final Handler handler = new Handler(Looper.getMainLooper());
+
+                                                handler.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Glide.with(PlaceholderFragment.this)
+                                                                .load(R.raw.checkmark)
+                                                                .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
+                                                                .into(logoImageViewTarget);
+                                                        voiceResponseText.setText(getString(R.string.successPrjector));
+                                                    }
+                                                });
+
+                                                Log.d("SPEECH", getString(R.string.successPrjector));
+
+                                            }
+                                            else if(connectionStatus.equals(ConnectionStatus.FAIL)){
+                                                logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
+
+                                                final Handler handler = new Handler(Looper.getMainLooper());
+
+                                                handler.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Glide.with(PlaceholderFragment.this)
+                                                                .load(R.raw.waiting)
+                                                                .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
+                                                                .into(logoImageViewTarget);
+                                                        voiceResponseText.setText(getString(R.string.failProjector));
+
+                                                    }
+                                                });
+                                                Log.d("SPEECH", getString(R.string.failProjector));
+
+                                            }
+
                                         }
                                     }).start();
 
-                                    if(connectionStatus.equals(ConnectionStatus.SUCCESS)) {
-
-                                        logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
-                                        Glide.with(this)
-                                                .load(R.raw.waiting)
-                                                .into(logoImageViewTarget);
-                                        voiceResponseText.setText(getString(R.string.successPrjector));
-
-                                    }
-                                    else if(connectionStatus.equals(ConnectionStatus.FAIL)){
-                                        logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
-                                        Glide.with(this)
-                                                .load(R.raw.waiting)
-                                                .into(logoImageViewTarget);
-                                        voiceResponseText.setText(getString(R.string.failProjector));
-
-                                    }
 
 
                                 }
@@ -573,7 +602,7 @@ public class RemoteActivity extends AppCompatActivity {
                                 RequestMode requestType = RequestMode.LIGHT;
                                 RemoteActivity.connectionStatus = ConnectionStatus.REMOTEREQUEST;
                                 RemoteActivity.signal = 0;
-                                code = encryptCode.getCode(code, DeviceList.LIGHT);
+                                //code = encryptCode.getCode(code, DeviceList.LIGHT);
 
                                 ArrayList<String> parameterValue = new ArrayList<String>();
                                 parameterValue.add(0, ParameterFactory.getMode(requestType));
@@ -581,10 +610,11 @@ public class RemoteActivity extends AppCompatActivity {
 
                                 new HttpRequestAsyncTask(parameterValue, finalipAddress, finalportNumber,
                                         requestType).execute();
-                                GlideDrawableImageViewTarget logoImageViewTarget =
+                                final GlideDrawableImageViewTarget logoImageViewTarget =
                                         new GlideDrawableImageViewTarget(voiceResponseGif);
                                 Glide.with(this)
                                         .load(R.raw.waiting)
+                                        .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
                                         .into(logoImageViewTarget);
                                 voiceResponseText.setText(getString(R.string.waiting));
 
@@ -602,26 +632,48 @@ public class RemoteActivity extends AppCompatActivity {
                                             }
                                         }
                                         speakResult(responseSpeech);
+                                        if(connectionStatus.equals(ConnectionStatus.SUCCESS)) {
+
+                                            logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
+
+                                            final Handler handler = new Handler(Looper.getMainLooper());
+
+                                            handler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Glide.with(PlaceholderFragment.this)
+                                                            .load(R.raw.checkmark)
+                                                            .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
+                                                            .into(logoImageViewTarget);
+                                                    voiceResponseText.setText(getString(R.string.successLight));
+                                                }
+                                            });
+
+                                            Log.d("SPEECH", getString(R.string.successLight));
+
+                                        }
+                                        else if(connectionStatus.equals(ConnectionStatus.FAIL)){
+                                            logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
+
+                                            final Handler handler = new Handler(Looper.getMainLooper());
+
+                                            handler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Glide.with(PlaceholderFragment.this)
+                                                            .load(R.raw.waiting)
+                                                            .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
+                                                            .into(logoImageViewTarget);
+                                                    voiceResponseText.setText(getString(R.string.failLight));
+
+                                                }
+                                            });
+                                            Log.d("SPEECH", getString(R.string.failLight));
+
+                                        }
                                     }
                                 }).start();
 
-                                if(connectionStatus.equals(ConnectionStatus.SUCCESS)) {
-
-                                    logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
-                                    Glide.with(this)
-                                            .load(R.raw.waiting)
-                                            .into(logoImageViewTarget);
-                                    voiceResponseText.setText(getString(R.string.successLight));
-
-                                }
-                                else if(connectionStatus.equals(ConnectionStatus.FAIL)){
-                                    logoImageViewTarget.setDrawable(voiceResponseGif.getDrawable());
-                                    Glide.with(this)
-                                            .load(R.raw.waiting)
-                                            .into(logoImageViewTarget);
-                                    voiceResponseText.setText(getString(R.string.failLight));
-
-                                }
                             }
                         }
                         else {

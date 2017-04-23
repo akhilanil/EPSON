@@ -12,17 +12,20 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:theme="@style/mainnotitle"></activity>
-        <activity
-            android:name=".RemoteActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_remote"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/mainnotitle">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+        </activity>
+        <activity
+            android:name=".RemoteActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_remote"
+            android:theme="@style/AppTheme.NoActionBar">
+
         </activity>
         <activity
             android:name=".ConnectionActivity"

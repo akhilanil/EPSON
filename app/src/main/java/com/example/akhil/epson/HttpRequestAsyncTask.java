@@ -204,6 +204,7 @@ class HttpRequestAsyncTask extends AsyncTask<Void, Void, Void> {
             e.printStackTrace();
         }
         Log.d("Link",link);
+
         return serverResponse;
     }
 }
